@@ -17,9 +17,9 @@ function expectIssue(input: unknown, code: ValidationCode, path?: string) {
   const result = validateDataset(input);
   expect(result.ok).toBe(false);
   if (result.ok) throw new Error('Expected an invalid dataset.');
-  expect(result.errors).toEqual(expect.arrayContaining([
-    expect.objectContaining({ code, ...(path ? { path } : {}) }),
-  ]));
+  expect(result.errors).toEqual(
+    expect.arrayContaining([expect.objectContaining({ code, ...(path ? { path } : {}) })]),
+  );
 }
 
 describe('validateDataset', () => {
@@ -51,14 +51,12 @@ describe('validateDataset', () => {
     expectIssue([{}], 'required', '$[0].parentId');
   });
 
-  it.each([
-    { id: ' ' },
-    { name: '' },
-    { parentId: '' },
-    { parentId: 0 },
-  ])('rejects empty or incorrectly typed identifiers/names %j', (fields) => {
-    expectIssue([{ ...node(), ...fields }], 'string');
-  });
+  it.each([{ id: ' ' }, { name: '' }, { parentId: '' }, { parentId: 0 }])(
+    'rejects empty or incorrectly typed identifiers/names %j',
+    (fields) => {
+      expectIssue([{ ...node(), ...fields }], 'string');
+    },
+  );
 
   it.each([
     ['headcount', -1, 'range'],
@@ -90,9 +88,12 @@ describe('validateDataset', () => {
     expectIssue([node({ updatedAt })], 'datetime', '$[0].updatedAt');
   });
 
-  it.each(['2024-02-29T12:00:00Z', '2026-09-14T12:00:00.123+03:00'])('accepts ISO timestamp %s', (updatedAt) => {
-    expect(validateDataset([node({ updatedAt })]).ok).toBe(true);
-  });
+  it.each(['2024-02-29T12:00:00Z', '2026-09-14T12:00:00.123+03:00'])(
+    'accepts ISO timestamp %s',
+    (updatedAt) => {
+      expect(validateDataset([node({ updatedAt })]).ok).toBe(true);
+    },
+  );
 
   it('rejects duplicates with a row-specific error', () => {
     expectIssue([node(), node()], 'duplicate', '$[1].id');
@@ -107,26 +108,33 @@ describe('validateDataset', () => {
   });
 
   it('finds a disconnected cycle even when valid roots exist', () => {
-    expectIssue([
-      node(),
-      node({ id: 'a', parentId: 'b' }),
-      node({ id: 'b', parentId: 'c' }),
-      node({ id: 'c', parentId: 'a' }),
-    ], 'cycle');
+    expectIssue(
+      [
+        node(),
+        node({ id: 'a', parentId: 'b' }),
+        node({ id: 'b', parentId: 'c' }),
+        node({ id: 'c', parentId: 'a' }),
+      ],
+      'cycle',
+    );
   });
 
   it('supports special JavaScript property names as IDs', () => {
-    expect(validateDataset([
-      node({ id: '__proto__' }),
-      node({ id: 'constructor', parentId: '__proto__' }),
-    ]).ok).toBe(true);
+    expect(
+      validateDataset([
+        node({ id: '__proto__' }),
+        node({ id: 'constructor', parentId: '__proto__' }),
+      ]).ok,
+    ).toBe(true);
   });
 
   it('handles a deep parent chain without overflowing the call stack', () => {
-    const input = Array.from({ length: 15_000 }, (_, i) => node({
-      id: String(i),
-      parentId: i === 0 ? null : String(i - 1),
-    })).reverse();
+    const input = Array.from({ length: 15_000 }, (_, i) =>
+      node({
+        id: String(i),
+        parentId: i === 0 ? null : String(i - 1),
+      }),
+    ).reverse();
     expect(validateDataset(input).ok).toBe(true);
   });
 });
@@ -137,7 +145,10 @@ describe('parseDataset', () => {
     try {
       parseDataset(null);
     } catch (error) {
-      expect(error).toMatchObject({ name: 'DatasetValidationError', errors: [{ path: '$', code: 'array', message: expect.any(String) }] });
+      expect(error).toMatchObject({
+        name: 'DatasetValidationError',
+        errors: [{ path: '$', code: 'array', message: expect.any(String) }],
+      });
     }
   });
 });

@@ -23,7 +23,10 @@ export function buildOrgIndex(nodes: readonly OrgNode[]): OrgIndex {
 
   const depthById = new Map<string, number>();
   const preOrderIds: string[] = [];
-  const stack = rootIds.slice().reverse().map((id) => ({ id, depth: 1 }));
+  const stack = rootIds
+    .slice()
+    .reverse()
+    .map((id) => ({ id, depth: 1 }));
   while (stack.length > 0) {
     const entry = stack.pop();
     if (!entry) break;

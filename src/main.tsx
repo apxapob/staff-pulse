@@ -6,5 +6,10 @@ import { queryClient } from '@/data/query';
 import { GlobalStyles } from '@/ui/styles';
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode><QueryClientProvider client={queryClient}><GlobalStyles /><App /></QueryClientProvider></StrictMode>,
+  <StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <GlobalStyles />
+      <App />
+    </QueryClientProvider>
+  </StrictMode>,
 );

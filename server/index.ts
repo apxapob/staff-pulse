@@ -1,7 +1,7 @@
-import { createAppServer, readServerPort } from './app.js';
+import { createAppServer, readLiveInterval, readServerPort } from './app.js';
 
 const port = readServerPort();
-const server = createAppServer();
+const server = createAppServer({ liveIntervalMs: readLiveInterval() });
 
 server.on('error', (error: Error) => {
   console.error(`Staff Pulse API failed: ${error.message}`);

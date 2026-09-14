@@ -3,7 +3,12 @@ import { buildOrgIndex, getAncestorIds, getDescendantIds } from './tree';
 import type { OrgNode } from './types';
 
 const node = (id: string, parentId: string | null = null): OrgNode => ({
-  id, name: id, parentId, headcount: 0, budget: 0, performance: 0,
+  id,
+  name: id,
+  parentId,
+  headcount: 0,
+  budget: 0,
+  performance: 0,
   updatedAt: '2026-09-14T12:00:00Z',
 });
 
@@ -31,7 +36,9 @@ describe('hierarchy index', () => {
     const index = buildOrgIndex(nodes);
     for (const current of nodes) {
       if (current.parentId === null) continue;
-      expect(index.postOrderIds.indexOf(current.id)).toBeLessThan(index.postOrderIds.indexOf(current.parentId));
+      expect(index.postOrderIds.indexOf(current.id)).toBeLessThan(
+        index.postOrderIds.indexOf(current.parentId),
+      );
     }
   });
 
@@ -63,7 +70,9 @@ describe('hierarchy index', () => {
   });
 
   it('indexes and traverses a deep hierarchy iteratively', () => {
-    const deepNodes = Array.from({ length: 15_000 }, (_, i) => node(String(i), i === 0 ? null : String(i - 1)));
+    const deepNodes = Array.from({ length: 15_000 }, (_, i) =>
+      node(String(i), i === 0 ? null : String(i - 1)),
+    );
     const index = buildOrgIndex(deepNodes);
     expect(index.depthById.get('14999')).toBe(15_000);
     expect(getDescendantIds(index, '0')).toHaveLength(14_999);

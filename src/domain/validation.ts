@@ -1,9 +1,4 @@
-import type {
-  DatasetValidationResult,
-  OrgNode,
-  ValidationCode,
-  ValidationIssue,
-} from './types';
+import type { DatasetValidationResult, OrgNode, ValidationCode, ValidationIssue } from './types';
 
 const requiredFields = [
   'id',
@@ -21,7 +16,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 
 /** Date.parse alone normalizes impossible dates such as February 30. */
 function isIsoDateTime(value: string): boolean {
-  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-])(\d{2}):(\d{2}))$/.exec(value);
+  const match =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-])(\d{2}):(\d{2}))$/.exec(
+      value,
+    );
   if (!match) return false;
 
   const year = Number(match[1]);
@@ -73,7 +71,10 @@ export function validateDataset(input: unknown): DatasetValidationResult {
       }
     }
     for (const field of ['id', 'name'] as const) {
-      if (Object.hasOwn(entry, field) && (typeof entry[field] !== 'string' || entry[field].trim() === '')) {
+      if (
+        Object.hasOwn(entry, field) &&
+        (typeof entry[field] !== 'string' || entry[field].trim() === '')
+      ) {
         addError(`${path}.${field}`, 'string', `The ${field} field must be a non-empty string.`);
       }
     }
@@ -82,7 +83,11 @@ export function validateDataset(input: unknown): DatasetValidationResult {
       entry.parentId !== null &&
       (typeof entry.parentId !== 'string' || entry.parentId.trim() === '')
     ) {
-      addError(`${path}.parentId`, 'string', 'The parentId field must be a non-empty string or null.');
+      addError(
+        `${path}.parentId`,
+        'string',
+        'The parentId field must be a non-empty string or null.',
+      );
     }
 
     for (const field of ['headcount', 'budget', 'performance'] as const) {
@@ -99,8 +104,15 @@ export function validateDataset(input: unknown): DatasetValidationResult {
       }
     }
 
-    if (Object.hasOwn(entry, 'updatedAt') && (typeof entry.updatedAt !== 'string' || !isIsoDateTime(entry.updatedAt))) {
-      addError(`${path}.updatedAt`, 'datetime', 'updatedAt must be a valid ISO datetime with a timezone.');
+    if (
+      Object.hasOwn(entry, 'updatedAt') &&
+      (typeof entry.updatedAt !== 'string' || !isIsoDateTime(entry.updatedAt))
+    ) {
+      addError(
+        `${path}.updatedAt`,
+        'datetime',
+        'updatedAt must be a valid ISO datetime with a timezone.',
+      );
     }
 
     if (errors.length === errorsBefore) {
@@ -144,7 +156,11 @@ export function validateDataset(input: unknown): DatasetValidationResult {
     let currentId: string | null = node.id;
     while (currentId !== null && !settled.has(currentId)) {
       if (path.has(currentId)) {
-        addError(`$[${rowsById.get(currentId)}].parentId`, 'cycle', `The parent chain of "${currentId}" contains a cycle.`);
+        addError(
+          `$[${rowsById.get(currentId)}].parentId`,
+          'cycle',
+          `The parent chain of "${currentId}" contains a cycle.`,
+        );
         break;
       }
       path.add(currentId);

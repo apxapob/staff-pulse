@@ -37,12 +37,14 @@ describe('organisation seed', () => {
       expect(node.performance).toBeGreaterThanOrEqual(0);
       expect(node.performance).toBeLessThanOrEqual(100);
       expect(Number.isNaN(Date.parse(node.updatedAt))).toBe(false);
-
     }
     const development = orgTreeSeed.find((node) => node.id === 'development');
     expect(development).toMatchObject({ headcount: 3, budget: 1_200_000 });
-    expect(orgTreeSeed.filter((node) => node.parentId === 'development')
-      .reduce((sum, node) => sum + node.headcount, development!.headcount)).toBe(40);
+    expect(
+      orgTreeSeed
+        .filter((node) => node.parentId === 'development')
+        .reduce((sum, node) => sum + node.headcount, development!.headcount),
+    ).toBe(40);
   });
 
   it('isolates mutable server state from the deterministic seed', () => {
