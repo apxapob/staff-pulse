@@ -29,3 +29,27 @@ test('invalid hierarchy becomes a recoverable error', async ({page})=>{
   await expect(page.getByRole('heading',{name:'Структура компании'})).toBeVisible();
 });
 
+test('aggregates, sorts, filters and selects the corresponding tree node', async ({page})=>{
+  await page.goto('/');
+  const row=page.locator('tr[data-node-id="development"]');
+  await expect(row.locator('td').nth(2)).toHaveText('40');
+  await page.getByRole('button',{name:'Всего сотрудников',exact:true}).dblclick();
+  await expect(page.getByRole('columnheader',{name:'Всего сотрудников'})).toHaveAttribute('aria-sort','descending');
+  await page.getByRole('button',{name:'Свернуть Технологии',exact:true}).click();
+  await page.getByRole('textbox',{name:'Поиск подразделения'}).fill('Веб-платформа');
+  await expect(page.locator('tbody tr')).toHaveCount(1);
+  await page.locator('tbody tr').click();
+  await expect(page.getByRole('button',{name:/^Веб-платформа/})).toHaveAttribute('aria-pressed','true');
+  await page.getByRole('button',{name:'Очистить поиск'}).click();
+  await page.getByLabel('Уровень подразделения').selectOption('1');
+  await expect(page.locator('tbody tr')).toHaveCount(6);
+});
+
+test('mobile view switches between the table and tree without overflow', async ({page})=>{
+  await page.setViewportSize({width:390,height:844});
+  await page.goto('/');
+  await expect(page.getByRole('heading',{name:'Аналитика подразделений'})).toBeVisible();
+  await page.getByRole('button',{name:'Дерево',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Структура компании'})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
