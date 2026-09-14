@@ -1,3 +1,9 @@
+export interface OrgEmployee {
+  readonly id: string;
+  readonly name: string;
+  readonly role: string;
+}
+
 /** Each metric belongs to this node; aggregates include its descendants. */
 export interface OrgNode {
   readonly id: string;
@@ -7,6 +13,8 @@ export interface OrgNode {
   readonly budget: number;
   readonly performance: number;
   readonly updatedAt: string;
+  /** Direct employees only. Omitted when the source provides metrics without a roster. */
+  readonly employees?: readonly OrgEmployee[];
 }
 
 export interface OrgIndex {

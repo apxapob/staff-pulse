@@ -10,6 +10,7 @@ import {
 import { buildOrgIndex } from '@/domain/tree';
 import { calculateAggregates } from '@/domain/aggregates';
 import { applyLivePatch } from './live';
+import type { OrgNode } from '@/domain/types';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -86,6 +87,75 @@ function snapshot(cursor = 'instance:0'): OrgSnapshot {
 }
 
 describe('snapshot and stream concurrency', () => {
+  it('reuses an unchanged HTTP 200 snapshot even when employee arrays are newly parsed', async () => {
+    const original = snapshot();
+    const node = original.index.nodesById.get('a')!;
+    const employees = Array.from({ length: node.headcount }, (_, id) => ({
+      id: `e-${id}`,
+      name: `Employee ${id}`,
+      role: 'Engineer',
+    }));
+    const index = buildOrgIndex([{ ...node, employees }]);
+    const withRoster = { ...original, index };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(JSON.stringify([...index.nodesById.values()]), {
+          headers: { 'X-Org-Cursor': original.cursor! },
+        }),
+      ),
+    );
+    expect(await fetchOrgTree(new AbortController().signal, withRoster)).toBe(withRoster);
+  });
+
+  it.each(['id', 'name', 'role'] as const)(
+    'adopts a snapshot when only an employee %s changes',
+    async (field) => {
+      const original = snapshot();
+      const node = {
+        ...original.index.nodesById.get('a')!,
+        headcount: 1,
+        employees: [{ id: 'e-1', name: 'Ada', role: 'Engineer' }],
+      };
+      const index = buildOrgIndex([node]);
+      const withRoster = { ...original, index, aggregates: calculateAggregates(index) };
+      const changed = { ...node, employees: [{ ...node.employees[0], [field]: 'Changed' }] };
+      vi.stubGlobal(
+        'fetch',
+        vi
+          .fn()
+          .mockResolvedValue(
+            new Response(JSON.stringify([changed]), { headers: { 'X-Org-Cursor': 'instance:1' } }),
+          ),
+      );
+      const received = await fetchOrgTree(new AbortController().signal, withRoster);
+      expect(received).not.toBe(withRoster);
+      expect(received.index.nodesById.get('a')?.employees?.[0]?.[field]).toBe('Changed');
+    },
+  );
+
+  it.each([true, false])(
+    'distinguishes absent and empty rosters when the response has employees = %s',
+    async (hasRoster) => {
+      const original = snapshot();
+      const node: OrgNode = { ...original.index.nodesById.get('a')!, headcount: 0 };
+      const index = buildOrgIndex([{ ...node, ...(hasRoster ? {} : { employees: [] }) }]);
+      const previous = { ...original, index, aggregates: calculateAggregates(index) };
+      const responseNode = { ...node, ...(hasRoster ? { employees: [] } : {}) };
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockResolvedValue(
+          new Response(JSON.stringify([responseNode]), {
+            headers: { 'X-Org-Cursor': 'instance:1' },
+          }),
+        ),
+      );
+      const received = await fetchOrgTree(new AbortController().signal, previous);
+      expect(received).not.toBe(previous);
+      expect(Object.hasOwn(received.index.nodesById.get('a')!, 'employees')).toBe(hasRoster);
+    },
+  );
+
   it.each([200, 304])(
     'does not roll back a live patch when a delayed %s snapshot finishes',
     async (status) => {

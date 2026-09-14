@@ -1,0 +1,4147 @@
+{
+  "version": 1,
+  "evaluationDate": "2026-09-15",
+  "evaluationTimezone": "Europe/Moscow",
+  "scope": "Selected model and frozen prompt C, all 76 requests through the production HTTP endpoint; no historical probe responses included.",
+  "model": {
+    "id": "hf.co/unsloth/Qwen3.5-4B-GGUF:Q8_0",
+    "repository": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF",
+    "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+    "artifact": {
+      "filename": "Qwen3.5-4B-Q8_0.gguf",
+      "bytes": 4482403488,
+      "sha256": "10cc391b403021dd11c614679d2fd92f611c3681d29e29651b717316965d61e1"
+    },
+    "renderer": "qwen3.5",
+    "parser": "qwen3.5",
+    "imageProjector": false,
+    "bootstrap": {
+      "downloadAndNativeImportSucceeded": true,
+      "nonemptyWarmupSucceeded": true
+    }
+  },
+  "runtime": {
+    "host": "Windows, Docker Desktop with WSL2",
+    "cpu": "AMD Ryzen 7 9800X3D",
+    "memoryGB": 64,
+    "gpu": "NVIDIA GeForce RTX 5080",
+    "gpuMemoryGB": 16,
+    "nvidiaDriver": "616.64",
+    "accelerator": "GPU",
+    "dockerEngine": "28.3.2",
+    "dockerCompose": "2.38.2",
+    "ollama": "0.34.0"
+  },
+  "prompt": {
+    "variant": "C",
+    "sha256": "f7979ceb8fa2aab7e0671bfc0eb0235d0cc0e27b68e0c4ddff8f929890a4573a",
+    "source": "server/search-schema.ts",
+    "export": "searchInstructions",
+    "frozenBeforeChallenge": true
+  },
+  "parameters": {
+    "think": false,
+    "temperature": 0,
+    "num_ctx": 4096,
+    "num_predict": 2048,
+    "stream": false,
+    "keep_alive": "10m",
+    "format": "JSON Schema: searchResponseSchema",
+    "seedConfiguration": "Not explicitly set",
+    "providerTimeoutMs": 30000,
+    "evaluatorTimeoutMs": 60000
+  },
+  "transport": {
+    "method": "POST",
+    "path": "/api/search",
+    "sequential": true,
+    "timing": "Client wall-clock duration of each request, including HTTP and parsing; model download and bootstrap are excluded"
+  },
+  "comparison": {
+    "module": "scripts/search-comparison.mjs",
+    "description": "Exact source and complete valid filter; AI OR/AND order and identical AND duplicates are ignored, names are case-insensitive, and same-field gte N AND lte N equals eq N. Other operators, constraints, sort and limit remain exact."
+  },
+  "summary": {
+    "total": 76,
+    "passed": 72,
+    "failed": 4,
+    "accuracy": 0.9473684210526315,
+    "supported": {
+      "total": 69,
+      "passed": 65
+    },
+    "unsupported": {
+      "total": 7,
+      "passed": 7
+    },
+    "latencyMs": {
+      "min": 251,
+      "median": 911,
+      "p95": 1422,
+      "max": 1679,
+      "mean": 881
+    }
+  },
+  "datasets": [
+    {
+      "id": "main",
+      "fixture": "scripts/fixtures/search-evaluation.json",
+      "role": "Development; used for instruction tuning",
+      "fixtureVersion": 2,
+      "startedAt": "2026-09-14T22:20:09.249Z",
+      "durationMs": 35169,
+      "summary": {
+        "total": 40,
+        "passed": 39,
+        "failed": 1,
+        "exactSemanticAccuracy": 0.975,
+        "byGroup": {
+          "level-name": {
+            "passed": 5,
+            "total": 5
+          },
+          "headcount": {
+            "passed": 6,
+            "total": 6
+          },
+          "budget": {
+            "passed": 5,
+            "total": 5
+          },
+          "performance": {
+            "passed": 5,
+            "total": 5
+          },
+          "combined": {
+            "passed": 2,
+            "total": 2
+          },
+          "logic": {
+            "passed": 2,
+            "total": 2
+          },
+          "ranges": {
+            "passed": 3,
+            "total": 3
+          },
+          "unsupported": {
+            "passed": 2,
+            "total": 2
+          },
+          "exclusions": {
+            "passed": 4,
+            "total": 4
+          },
+          "ordering": {
+            "passed": 5,
+            "total": 6
+          }
+        },
+        "bySource": {
+          "ai": 38,
+          "text": 2
+        },
+        "latencyMs": {
+          "min": 263,
+          "median": 909,
+          "p95": 1398,
+          "max": 1429,
+          "mean": 879
+        }
+      }
+    },
+    {
+      "id": "holdout",
+      "fixture": "scripts/fixtures/search-holdout.json",
+      "role": "Originally independent; later used for instruction tuning alongside main",
+      "fixtureVersion": 2,
+      "startedAt": "2026-09-14T22:20:44.696Z",
+      "durationMs": 11204,
+      "summary": {
+        "total": 12,
+        "passed": 12,
+        "failed": 0,
+        "exactSemanticAccuracy": 1,
+        "byGroup": {
+          "level-name": {
+            "passed": 2,
+            "total": 2
+          },
+          "headcount": {
+            "passed": 2,
+            "total": 2
+          },
+          "budget": {
+            "passed": 1,
+            "total": 1
+          },
+          "performance": {
+            "passed": 1,
+            "total": 1
+          },
+          "combined": {
+            "passed": 2,
+            "total": 2
+          },
+          "logic": {
+            "passed": 1,
+            "total": 1
+          },
+          "ranges": {
+            "passed": 1,
+            "total": 1
+          },
+          "exclusions": {
+            "passed": 1,
+            "total": 1
+          },
+          "unsupported": {
+            "passed": 1,
+            "total": 1
+          }
+        },
+        "bySource": {
+          "ai": 11,
+          "text": 1
+        },
+        "latencyMs": {
+          "min": 256,
+          "median": 936,
+          "p95": 1416,
+          "max": 1416,
+          "mean": 934
+        }
+      }
+    },
+    {
+      "id": "challenge",
+      "fixture": "scripts/fixtures/search-challenge.json",
+      "role": "Prepared independently without reading the current instructions; unused for instruction tuning; first run after prompt C was frozen",
+      "fixtureVersion": 2,
+      "startedAt": "2026-09-14T22:16:54.044Z",
+      "durationMs": 20603,
+      "summary": {
+        "total": 24,
+        "passed": 21,
+        "failed": 3,
+        "exactSemanticAccuracy": 0.875,
+        "byGroup": {
+          "level-name": {
+            "passed": 2,
+            "total": 2
+          },
+          "headcount": {
+            "passed": 1,
+            "total": 2
+          },
+          "budget": {
+            "passed": 0,
+            "total": 1
+          },
+          "performance": {
+            "passed": 1,
+            "total": 1
+          },
+          "combined": {
+            "passed": 1,
+            "total": 1
+          },
+          "exclusions": {
+            "passed": 3,
+            "total": 3
+          },
+          "logic": {
+            "passed": 3,
+            "total": 3
+          },
+          "ranges": {
+            "passed": 3,
+            "total": 3
+          },
+          "ordering": {
+            "passed": 3,
+            "total": 4
+          },
+          "unsupported": {
+            "passed": 4,
+            "total": 4
+          }
+        },
+        "bySource": {
+          "ai": 18,
+          "text": 6
+        },
+        "latencyMs": {
+          "min": 251,
+          "median": 910,
+          "p95": 1443,
+          "max": 1679,
+          "mean": 858
+        }
+      }
+    }
+  ],
+  "limitations": [
+    "The 52 main/holdout queries were used for instruction tuning. Their scores are development results, not an independent estimate of generalization.",
+    "Challenge contains 24 independently authored queries. It was not used to revise prompt C, but remains a small fixed benchmark.",
+    "One run per dataset; latency depends on hardware, model residency and concurrent load. These results do not guarantee accuracy or timing for arbitrary queries."
+  ],
+  "results": [
+    {
+      "dataset": "main",
+      "id": "level-teams",
+      "group": "level-name",
+      "query": "Мне нужен список команд",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 857
+    },
+    {
+      "dataset": "main",
+      "id": "level-departments",
+      "group": "level-name",
+      "query": "Отобрази все отделы компании",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 681
+    },
+    {
+      "dataset": "main",
+      "id": "level-divisions",
+      "group": "level-name",
+      "query": "Хочу посмотреть дивизионы",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 690
+    },
+    {
+      "dataset": "main",
+      "id": "name-substring",
+      "group": "level-name",
+      "query": "Название подразделения содержит «аналитика»",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "аналитика"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "аналитика"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 401
+    },
+    {
+      "dataset": "main",
+      "id": "name-and-level",
+      "group": "level-name",
+      "query": "Нужны отделы со словом «поддержка» в названии",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "поддержка"
+              },
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "поддержка"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 906
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-gt",
+      "group": "headcount",
+      "query": "Найди команды, в которых работает больше 17 человек",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 17
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 17
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 918
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-gte",
+      "group": "headcount",
+      "query": "Оставь подразделения, где сотрудников хотя бы 25",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 25
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 25
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 700
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-lt",
+      "group": "headcount",
+      "query": "Покажи отделы, у которых численность меньше 14 человек",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 14
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 14
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 920
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-lte",
+      "group": "headcount",
+      "query": "Команды, где работает максимум 8 сотрудников",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 8
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 8
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 902
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-eq",
+      "group": "headcount",
+      "query": "Ищу подразделения с ровно 12 сотрудниками",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 12
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 12
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 712
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-zero",
+      "group": "headcount",
+      "query": "В каких отделах совсем нет сотрудников?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 907
+    },
+    {
+      "dataset": "main",
+      "id": "budget-gt-thousand",
+      "group": "budget",
+      "query": "Нужны команды с бюджетом свыше 740 тысяч рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 740000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 740000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 972
+    },
+    {
+      "dataset": "main",
+      "id": "budget-gte-million-decimal",
+      "group": "budget",
+      "query": "Дивизионы, чей бюджет составляет не менее 2,75 миллиона рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 2750000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 2750000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 945
+    },
+    {
+      "dataset": "main",
+      "id": "budget-lt-thousand-decimal",
+      "group": "budget",
+      "query": "Отделы, у которых бюджет меньше 625,5 тыс. руб.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 625500
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 625500
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 933
+    },
+    {
+      "dataset": "main",
+      "id": "budget-lte-million",
+      "group": "budget",
+      "query": "Подразделения с бюджетом не больше 9 млн рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 9000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 9000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 745
+    },
+    {
+      "dataset": "main",
+      "id": "budget-eq-roubles",
+      "group": "budget",
+      "query": "Найти команды: бюджет равен 1 250 000 рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 1250000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 1250000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 938
+    },
+    {
+      "dataset": "main",
+      "id": "performance-gt",
+      "group": "performance",
+      "query": "Где эффективность превышает 91 процент?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 91
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 91
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 750
+    },
+    {
+      "dataset": "main",
+      "id": "performance-gte-negation",
+      "group": "performance",
+      "query": "Отделы, эффективность которых не ниже 72%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 72
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 72
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 898
+    },
+    {
+      "dataset": "main",
+      "id": "performance-lt",
+      "group": "performance",
+      "query": "Хочу увидеть команды с результативностью ниже 67,5 процента",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 67.5
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 67.5
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 944
+    },
+    {
+      "dataset": "main",
+      "id": "performance-lte-negation",
+      "group": "performance",
+      "query": "Найди дивизионы с эффективностью не выше 88%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 88
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 88
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 952
+    },
+    {
+      "dataset": "main",
+      "id": "performance-eq",
+      "group": "performance",
+      "query": "Эффективность подразделения должна быть ровно 95%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "eq",
+                "value": 95
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "eq",
+                "value": 95
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 694
+    },
+    {
+      "dataset": "main",
+      "id": "and-two-metrics",
+      "group": "combined",
+      "query": "Отделы с численностью не меньше 30 человек и эффективностью выше 85%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 30
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 85
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 30
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 85
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1120
+    },
+    {
+      "dataset": "main",
+      "id": "and-three-metrics",
+      "group": "combined",
+      "query": "Покажи команды, где меньше 16 сотрудников, бюджет не выше 3,2 млн и эффективность не ниже 79%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 16
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 3200000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 79
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 16
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 3200000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 79
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1398
+    },
+    {
+      "dataset": "main",
+      "id": "or-departments",
+      "group": "logic",
+      "query": "Отделы с численностью меньше 6 или бюджетом больше 4 млн",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 6
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 4000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 6
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 4000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1422
+    },
+    {
+      "dataset": "main",
+      "id": "range-budget",
+      "group": "ranges",
+      "query": "Нужны команды с бюджетом от 700 тысяч до 2 млн рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 700000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 2000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 700000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 2000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1195
+    },
+    {
+      "dataset": "main",
+      "id": "unsupported-unknown-field",
+      "group": "unsupported",
+      "query": "Отделы с эффективностью выше 83% и руководителем Ивановым",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Отделы с эффективностью выше 83% и руководителем Ивановым"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Отделы с эффективностью выше 83% и руководителем Ивановым"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 265
+    },
+    {
+      "dataset": "main",
+      "id": "exclude-name",
+      "group": "exclusions",
+      "query": "Покажи команды с бюджетом ниже 6 млн, кроме маркетинга",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 6000000
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "маркетинг"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 6000000
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "маркетинг"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1165
+    },
+    {
+      "dataset": "main",
+      "id": "unsupported-period",
+      "group": "unsupported",
+      "query": "Какие отделы имели эффективность выше 90% в прошлом году?",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Какие отделы имели эффективность выше 90% в прошлом году?"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Какие отделы имели эффективность выше 90% в прошлом году?"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 263
+    },
+    {
+      "dataset": "main",
+      "id": "headcount-not-equal",
+      "group": "exclusions",
+      "query": "Команды, у которых численность не равна 11",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "ne",
+                "value": 11
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "ne",
+                "value": 11
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 913
+    },
+    {
+      "dataset": "main",
+      "id": "ranking-budget",
+      "group": "ordering",
+      "query": "Выбери три отдела с самым большим бюджетом",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": 3
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": 3
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 911
+    },
+    {
+      "dataset": "main",
+      "id": "sort-name-ascending",
+      "group": "ordering",
+      "query": "Все подразделения по алфавиту",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "name",
+            "direction": "asc"
+          },
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "name",
+            "direction": "asc"
+          },
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 561
+    },
+    {
+      "dataset": "main",
+      "id": "sort-budget-descending",
+      "group": "ordering",
+      "query": "Отделы по убыванию бюджета",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 818
+    },
+    {
+      "dataset": "main",
+      "id": "top-performance",
+      "group": "ordering",
+      "query": "Первые 7 команд по эффективности, начиная с самых эффективных",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": {
+            "field": "performance",
+            "direction": "desc"
+          },
+          "limit": 7
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": {
+            "field": "performance",
+            "direction": "desc"
+          },
+          "limit": 7
+        }
+      },
+      "passed": false,
+      "httpStatus": 200,
+      "durationMs": 1040
+    },
+    {
+      "dataset": "main",
+      "id": "bottom-headcount",
+      "group": "ordering",
+      "query": "Пять подразделений с самой маленькой численностью",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": 5
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": 5
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 546
+    },
+    {
+      "dataset": "main",
+      "id": "range-budget-mixed-units",
+      "group": "ranges",
+      "query": "Команды с бюджетом от 480 тысяч до 1,25 миллиона рублей включительно",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 480000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1250000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 480000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1250000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1207
+    },
+    {
+      "dataset": "main",
+      "id": "range-headcount-inclusive",
+      "group": "ranges",
+      "query": "Отделы с численностью не меньше 18 и не больше 24 сотрудников",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 18
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 24
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 18
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 24
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1198
+    },
+    {
+      "dataset": "main",
+      "id": "or-different-levels",
+      "group": "logic",
+      "query": "Дивизионы с эффективностью ниже 61% или команды с бюджетом не больше 2,4 млн рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 61
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 2400000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 61
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 2400000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1429
+    },
+    {
+      "dataset": "main",
+      "id": "exclude-name-and-performance",
+      "group": "exclusions",
+      "query": "Подразделения, название которых не содержит «операции», с эффективностью выше 82%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "операции"
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 82
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "операции"
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 82
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 950
+    },
+    {
+      "dataset": "main",
+      "id": "exclude-level-and-sort",
+      "group": "exclusions",
+      "query": "Все подразделения, кроме дивизионов, отсортируй по возрастанию численности",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "ne",
+                "value": 1
+              }
+            ]
+          ],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "ne",
+                "value": 1
+              }
+            ]
+          ],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 852
+    },
+    {
+      "dataset": "main",
+      "id": "sort-level-descending",
+      "group": "ordering",
+      "query": "Расположи подразделения по уровню от команд к дивизионам",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "level",
+            "direction": "desc"
+          },
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "level",
+            "direction": "desc"
+          },
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 547
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-level-teams",
+      "group": "level-name",
+      "query": "Выведи только команды",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 729
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-name-substring",
+      "group": "level-name",
+      "query": "Ищу подразделения, название которых содержит «снабжение»",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "снабжение"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "снабжение"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 691
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-headcount-negation",
+      "group": "headcount",
+      "query": "Интересуют отделы, где людей не больше 19",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 19
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 19
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 904
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-budget-minimum",
+      "group": "budget",
+      "query": "У каких дивизионов бюджет составляет хотя бы 4,6 миллиона рублей?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 4600000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 4600000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 961
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-performance-less",
+      "group": "performance",
+      "query": "Подразделения, эффективность которых меньше 63%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 63
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 63
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 695
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-zero-employees",
+      "group": "headcount",
+      "query": "Нужны команды с нулевой численностью",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 914
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-two-metrics",
+      "group": "combined",
+      "query": "Отделы с бюджетом ровно 850 тысяч рублей и эффективностью не ниже 76%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 850000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 76
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 850000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 76
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1175
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-name-and-metrics",
+      "group": "combined",
+      "query": "В названии отдела должно быть «качество», сотрудников больше 22, а бюджет меньше 1,8 млн",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "качество"
+              },
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 22
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 1800000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "качество"
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 22
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 1800000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1416
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-or",
+      "group": "logic",
+      "query": "Команды с эффективностью выше 92% либо численностью меньше 13",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 92
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 13
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 92
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 13
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1381
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-range",
+      "group": "ranges",
+      "query": "Дивизионы, где эффективность от 68 до 84 процентов",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 68
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 84
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 68
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 84
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1125
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-exclude-name",
+      "group": "exclusions",
+      "query": "Все отделы, кроме тех, чьё название содержит «закупки»",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "закупки"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "закупки"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 958
+    },
+    {
+      "dataset": "holdout",
+      "id": "holdout-unsupported-unknown-field",
+      "group": "unsupported",
+      "query": "Команды с бюджетом менее 950 тыс. рублей и средней зарплатой выше 70 тысяч",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Команды с бюджетом менее 950 тыс. рублей и средней зарплатой выше 70 тысяч"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Команды с бюджетом менее 950 тыс. рублей и средней зарплатой выше 70 тысяч"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 256
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-level-second",
+      "group": "level-name",
+      "query": "Ограничь список подразделениями второго уровня.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 877
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-team-name-fragment",
+      "group": "level-name",
+      "query": "В списке команд оставь названия с фрагментом «инфра».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "инфра"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "инфра"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 909
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-zero-division",
+      "group": "headcount",
+      "query": "Нужны дивизионы, в которых суммарно ноль сотрудников.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Нужны дивизионы, в которых суммарно ноль сотрудников."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": false,
+      "httpStatus": 200,
+      "durationMs": 261
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-headcount-minimum",
+      "group": "headcount",
+      "query": "Найди подразделения: численность как минимум 47 человек.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 47
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 47
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 745
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-budget-exact-roubles",
+      "group": "budget",
+      "query": "Покажи отделы с суммарным бюджетом ровно 2 375 000 рублей.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 2375000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Покажи отделы с суммарным бюджетом ровно 2 375 000 рублей."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": false,
+      "httpStatus": 200,
+      "durationMs": 259
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-performance-ceiling",
+      "group": "performance",
+      "query": "Команды, у которых средняя эффективность не превышает 73,5%.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 73.5
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 73.5
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 936
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-three-metrics",
+      "group": "combined",
+      "query": "Отделы: сотрудников больше 16, бюджет меньше 3,8 млн рублей, эффективность не ниже 79%.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 16
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 3800000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 79
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 16
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 3800000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 79
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1405
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-name-exclusion",
+      "group": "exclusions",
+      "query": "Из команд исключи те, в названии которых встречается «резерв».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "резерв"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "резерв"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 956
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-positive-negative-name",
+      "group": "exclusions",
+      "query": "Названия подразделений должны содержать «анализ» и не содержать «архив».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "анализ"
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "архив"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "анализ"
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "архив"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 977
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-level-and-metric-exclusion",
+      "group": "exclusions",
+      "query": "Среди подразделений любого уровня, кроме первого, найди те, где численность не равна 9.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "ne",
+                "value": 1
+              },
+              {
+                "field": "headcount",
+                "op": "ne",
+                "value": 9
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "ne",
+                "value": 1
+              },
+              {
+                "field": "headcount",
+                "op": "ne",
+                "value": 9
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 911
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-or-common-level",
+      "group": "logic",
+      "query": "Нужны команды, у которых бюджет выше 1,9 млн рублей либо эффективность ниже 58%.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 1900000
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 58
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 1900000
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 58
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1443
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-or-different-levels",
+      "group": "logic",
+      "query": "Покажи отделы с численностью от 14 до 21 включительно или дивизионы с бюджетом не менее 9 млн рублей.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 14
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 21
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 9000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 14
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 21
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 9000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1679
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-or-common-metric",
+      "group": "logic",
+      "query": "Подразделения с численностью больше 35, у которых название содержит «склад» или «доставка».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 35
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "склад"
+              }
+            ],
+            [
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 35
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "доставка"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 35
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "склад"
+              }
+            ],
+            [
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 35
+              },
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "доставка"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1412
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-range-roubles",
+      "group": "ranges",
+      "query": "Найди команды с бюджетом от 915 000 до 1 640 000 рублей включительно.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 915000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1640000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 915000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1640000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1189
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-range-millions",
+      "group": "ranges",
+      "query": "Оставь отделы с бюджетом от 0,72 до 1,35 млн рублей, включая обе границы.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 720000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1350000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 720000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1350000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1202
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-range-exclusive-mixed-units",
+      "group": "ranges",
+      "query": "Отделы, где бюджет больше 350 тыс. рублей, но строго меньше 0,95 млн рублей.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 350000
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 950000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 350000
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 950000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 1198
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-top-budget",
+      "group": "ordering",
+      "query": "Какие четыре отдела имеют наибольший суммарный бюджет?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": 4
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": 4
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 815
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-bottom-headcount",
+      "group": "ordering",
+      "query": "Выведи шесть подразделений, в которых меньше всего сотрудников.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": 6
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": 6
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 553
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-bottom-performance",
+      "group": "ordering",
+      "query": "Три команды с самой низкой средней эффективностью.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": {
+            "field": "performance",
+            "direction": "asc"
+          },
+          "limit": 3
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 9007199254740991
+              }
+            ]
+          ],
+          "sort": {
+            "field": "performance",
+            "direction": "asc"
+          },
+          "limit": 3
+        }
+      },
+      "passed": false,
+      "httpStatus": 200,
+      "durationMs": 1139
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-top-performance",
+      "group": "ordering",
+      "query": "Пять подразделений с максимальной средней эффективностью.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "performance",
+            "direction": "desc"
+          },
+          "limit": 5
+        }
+      },
+      "actual": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "performance",
+            "direction": "desc"
+          },
+          "limit": 5
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 534
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-unsupported-period",
+      "group": "unsupported",
+      "query": "Отделы, у которых бюджет в позапрошлом году превышал 7,2 млн рублей.",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Отделы, у которых бюджет в позапрошлом году превышал 7,2 млн рублей."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Отделы, у которых бюджет в позапрошлом году превышал 7,2 млн рублей."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 251
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-unsupported-turnover",
+      "group": "unsupported",
+      "query": "Найди команды с численностью до 15 человек и текучестью кадров выше 6%.",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Найди команды с численностью до 15 человек и текучестью кадров выше 6%."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Найди команды с численностью до 15 человек и текучестью кадров выше 6%."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 402
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-unsupported-other-node",
+      "group": "unsupported",
+      "query": "Команды с бюджетом выше бюджета отдела «Логистика».",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Команды с бюджетом выше бюджета отдела «Логистика»."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Команды с бюджетом выше бюджета отдела «Логистика»."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 252
+    },
+    {
+      "dataset": "challenge",
+      "id": "challenge-unsupported-company-average",
+      "group": "unsupported",
+      "query": "Подразделения, у которых средняя эффективность выше среднего по компании.",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Подразделения, у которых средняя эффективность выше среднего по компании."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "actual": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Подразделения, у которых средняя эффективность выше среднего по компании."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      },
+      "passed": true,
+      "httpStatus": 200,
+      "durationMs": 295
+    }
+  ]
+}

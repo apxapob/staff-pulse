@@ -2,11 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { calculateAggregates } from './aggregates';
 import { applyMetricChanges, type MetricChange } from './patch';
 import { buildOrgIndex } from './tree';
-import type { OrgAggregate, OrgNode } from './types';
+import type { OrgAggregate, OrgEmployee, OrgNode } from './types';
 import { DatasetValidationError } from './validation';
 
 const oldTime = '2026-09-14T12:00:00Z';
 const newTime = '2026-09-14T12:01:00Z';
+const employee = (id: string): OrgEmployee => ({ id, name: `Employee ${id}`, role: 'Engineer' });
 const node = (
   id: string,
   parentId: string | null,
@@ -112,6 +113,136 @@ describe('applyMetricChanges', () => {
     expect(result.aggregates).toBe(aggregates);
     expect(result.changedIds).toEqual(new Set(['team']));
     expect(result.changedFields.size).toBe(0);
+  });
+
+  it('updates employee details without recalculating aggregates or requiring a timestamp change', () => {
+    const employees = [employee('a')];
+    const { index, aggregates } = snapshot([{ ...node('team', null, 1), employees }]);
+    const replacement = { ...employees[0], role: 'Lead engineer', extra: true };
+    const result = applyMetricChanges(index, aggregates, [
+      { id: 'team', employees: [replacement], updatedAt: oldTime },
+    ]);
+    expect(result.index.nodesById.get('team')?.employees).toEqual([
+      { ...employee('a'), role: 'Lead engineer' },
+    ]);
+    expect(result.index.nodesById.get('team')?.employees?.[0]).not.toBe(replacement);
+    expect(result.changedIds).toEqual(new Set(['team']));
+    expect(result.changedFields.size).toBe(0);
+    expect(result.aggregates).toBe(aggregates);
+    expect(index.nodesById.get('team')?.employees).toBe(employees);
+  });
+
+  it('preserves roster references for metric changes and snapshot identity for equal rosters', () => {
+    const employees = [employee('a')];
+    const { index, aggregates } = snapshot([{ ...node('team', null, 1), employees }]);
+    const noOp = applyMetricChanges(index, aggregates, [
+      { id: 'team', employees: [employee('a')], updatedAt: oldTime },
+    ]);
+    expect(noOp.index).toBe(index);
+    expect(noOp.changedIds.size).toBe(0);
+    const result = applyMetricChanges(index, aggregates, [
+      { id: 'team', budget: 120, updatedAt: newTime },
+    ]);
+    expect(result.index.nodesById.get('team')?.employees).toBe(employees);
+  });
+
+  it('adds an explicitly empty roster to a metric-only node without changing its aggregates', () => {
+    const { index, aggregates } = snapshot([node('team', null, 0)]);
+    const result = applyMetricChanges(index, aggregates, [
+      { id: 'team', employees: [], updatedAt: oldTime },
+    ]);
+    expect(result.index.nodesById.get('team')?.employees).toEqual([]);
+    expect(result.changedIds).toEqual(new Set(['team']));
+    expect(result.aggregates).toBe(aggregates);
+  });
+
+  it('updates headcount with its roster atomically, including zero employees', () => {
+    const initial = snapshot([
+      { ...node('root', null, 0), employees: [] },
+      { ...node('team', 'root', 1), employees: [employee('a')] },
+    ]);
+    const empty = applyMetricChanges(initial.index, initial.aggregates, [
+      { id: 'team', headcount: 0, employees: [], updatedAt: newTime },
+    ]);
+    expect(empty.index.nodesById.get('team')?.employees).toEqual([]);
+    expect(empty.aggregates.get('root')?.headcount).toBe(0);
+    expect(empty.aggregates.get('root')?.performance).toBeNull();
+    const populated = applyMetricChanges(empty.index, empty.aggregates, [
+      { id: 'team', headcount: 2, employees: [employee('b'), employee('c')], updatedAt: newTime },
+    ]);
+    expect(populated.index.nodesById.get('team')?.employees).toHaveLength(2);
+    expect(populated.aggregates.get('root')?.headcount).toBe(2);
+    expectEquivalent(populated.aggregates, calculateAggregates(populated.index));
+  });
+
+  it.each([
+    { headcount: 2 },
+    { headcount: 0 },
+    { employees: [] },
+    { employees: null },
+    { employees: [{ id: 'a', name: '', role: 'Engineer' }] },
+    { employees: [employee('b')] },
+    { employees: [employee('a'), employee('a')], headcount: 2 },
+  ])('rejects incoherent or duplicate roster changes atomically: %j', (change) => {
+    const nodes = [
+      { ...node('root', null, 1), employees: [employee('a')] },
+      { ...node('team', 'root', 1), employees: [employee('b')] },
+    ];
+    const { index, aggregates } = snapshot(nodes);
+    expect(() =>
+      applyMetricChanges(index, aggregates, [
+        { id: 'team', budget: 125, updatedAt: newTime },
+        { id: 'root', ...change, updatedAt: newTime },
+      ]),
+    ).toThrow(DatasetValidationError);
+    expect([...index.nodesById.values()]).toEqual(nodes);
+    expect(aggregates.get('team')?.budget).toBe(100);
+  });
+
+  it('allows atomic cross-node employee transfers in either batch order', () => {
+    const { index, aggregates } = snapshot([
+      { ...node('root', null, 1), employees: [employee('a')] },
+      { ...node('team', 'root', 0), employees: [] },
+    ]);
+    const changes: MetricChange[] = [
+      { id: 'root', headcount: 0, employees: [], updatedAt: newTime },
+      { id: 'team', headcount: 1, employees: [employee('a')], updatedAt: newTime },
+    ];
+    for (const batch of [changes, [...changes].reverse()]) {
+      const result = applyMetricChanges(index, aggregates, batch);
+      expect(result.index.nodesById.get('root')?.employees).toEqual([]);
+      expect(result.index.nodesById.get('team')?.employees).toEqual([employee('a')]);
+      expect(result.aggregates.get('root')?.headcount).toBe(1);
+      expectEquivalent(result.aggregates, calculateAggregates(result.index));
+    }
+  });
+
+  it('rejects employee ID collisions between changed nodes before applying either edit', () => {
+    const { index, aggregates } = snapshot([
+      { ...node('root', null, 1), employees: [employee('a')] },
+      { ...node('team', 'root', 1), employees: [employee('b')] },
+    ]);
+    expect(() =>
+      applyMetricChanges(index, aggregates, [
+        { id: 'root', employees: [employee('new')], updatedAt: newTime },
+        { id: 'team', employees: [employee('new')], updatedAt: newTime },
+      ]),
+    ).toThrow(DatasetValidationError);
+    expect(index.nodesById.get('root')?.employees).toEqual([employee('a')]);
+    expect(index.nodesById.get('team')?.employees).toEqual([employee('b')]);
+  });
+
+  it('rejects an employee ID already owned by an unchanged node', () => {
+    const { index, aggregates } = snapshot([
+      { ...node('root', null, 1), employees: [employee('a')] },
+      { ...node('team', 'root', 1), employees: [employee('b')] },
+    ]);
+    expect(() =>
+      applyMetricChanges(index, aggregates, [
+        { id: 'team', employees: [employee('a')], updatedAt: newTime },
+      ]),
+    ).toThrow(DatasetValidationError);
+    expect(index.nodesById.get('team')?.employees).toEqual([employee('b')]);
   });
 
   it('changes only budget fields for a budget-only patch', () => {

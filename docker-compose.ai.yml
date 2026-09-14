@@ -1,0 +1,55 @@
+services:
+  api:
+    environment:
+      SEARCH_PROVIDER: ollama
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-hf.co/unsloth/Qwen3.5-4B-GGUF:Q8_0}
+      MODEL_STATUS_URL: http://model-init:3002
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-30000}
+
+  ollama:
+    image: ollama/ollama:0.34.0
+    environment:
+      OLLAMA_NO_CLOUD: 'true'
+    volumes:
+      - ollama-models:/root/.ollama
+    networks:
+      - backend
+      - egress
+    healthcheck:
+      test: ['CMD', 'ollama', 'list']
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+
+  model-init:
+    image: node:24-alpine
+    user: node
+    init: true
+    command: ['node', '/app/serve-model.mjs']
+    environment:
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-hf.co/unsloth/Qwen3.5-4B-GGUF:Q8_0}
+    volumes:
+      - ./scripts/prepare-model.mjs:/app/prepare-model.mjs:ro
+      - ./scripts/serve-model.mjs:/app/serve-model.mjs:ro
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - backend
+      - egress
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3002/status').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  ollama-models:

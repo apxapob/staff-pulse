@@ -122,13 +122,11 @@ describe('live connection lifecycle', () => {
 
   it('fetches once on resync and explicitly reconnects without remounting', async () => {
     const { sources, statuses } = setup();
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue(
-        new Response(JSON.stringify([...index.nodesById.values()]), {
-          headers: { 'X-Org-Cursor': 'restarted:0' },
-        }),
-      );
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify([...index.nodesById.values()]), {
+        headers: { 'X-Org-Cursor': 'restarted:0' },
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
     sources[0]!.emit('ready', { cursor: 'instance:0' });
     sources[0]!.emit('resync', { reason: 'instance-changed' });

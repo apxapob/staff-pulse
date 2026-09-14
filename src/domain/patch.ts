@@ -1,4 +1,5 @@
-import type { OrgAggregate, OrgIndex, OrgNode, ValidationIssue } from './types';
+import type { OrgAggregate, OrgEmployee, OrgIndex, OrgNode, ValidationIssue } from './types';
+import { employeeRostersEqual } from './employees';
 import { DatasetValidationError, validateDataset } from './validation';
 
 export type MetricField = 'headcount' | 'budget' | 'performance';
@@ -8,6 +9,7 @@ export interface MetricChange {
   readonly headcount?: number;
   readonly budget?: number;
   readonly performance?: number;
+  readonly employees?: readonly OrgEmployee[];
   readonly updatedAt: string;
 }
 
@@ -16,12 +18,12 @@ export interface MetricPatchResult {
   readonly aggregates: ReadonlyMap<string, OrgAggregate>;
   /** Own metric edits and aggregate cells whose displayed value changed. */
   readonly changedFields: ReadonlyMap<string, ReadonlySet<MetricField>>;
-  /** Source nodes changed by this patch, including timestamp-only updates. */
+  /** Source nodes changed by this patch, including roster-only and timestamp-only updates. */
   readonly changedIds: ReadonlySet<string>;
 }
 
 const metricFields: readonly MetricField[] = ['headcount', 'budget', 'performance'];
-const allowedFields = new Set<string>(['id', 'updatedAt', ...metricFields]);
+const allowedFields = new Set<string>(['id', 'updatedAt', 'employees', ...metricFields]);
 
 /** Validate every entry before replacing any objects from the current snapshot. */
 function validateChanges(index: OrgIndex, input: unknown): OrgNode[] {
@@ -34,6 +36,8 @@ function validateChanges(index: OrgIndex, input: unknown): OrgNode[] {
   const errors: ValidationIssue[] = [];
   const replacements: OrgNode[] = [];
   const seenIds = new Set<string>();
+  const replacementRows = new Map<string, number>();
+  let hasRosterUpdates = false;
 
   input.forEach((entry: unknown, row: number) => {
     const path = `$[${row}]`;
@@ -77,6 +81,7 @@ function validateChanges(index: OrgIndex, input: unknown): OrgNode[] {
       });
     }
     seenIds.add(change.id);
+    if (Object.hasOwn(change, 'employees')) hasRosterUpdates = true;
 
     const previous = index.nodesById.get(change.id);
     if (!previous) {
@@ -98,10 +103,39 @@ function validateChanges(index: OrgIndex, input: unknown): OrgNode[] {
       return;
     }
     if (errors.length === errorsBefore) {
-      replacements.push({ ...result.nodes[0], parentId: previous.parentId });
+      const next = { ...result.nodes[0], parentId: previous.parentId };
+      if (
+        previous.employees !== undefined &&
+        employeeRostersEqual(previous.employees, next.employees)
+      ) {
+        next.employees = previous.employees;
+      }
+      replacements.push(next);
+      replacementRows.set(next.id, row);
     }
   });
 
+  // Check the final roster ownership, allowing an employee to move between two
+  // nodes in one batch regardless of the order of those replacements.
+  if (errors.length === 0 && hasRosterUpdates) {
+    const employeeIds = new Set<string>();
+    for (const node of index.nodesById.values()) {
+      if (replacementRows.has(node.id)) continue;
+      for (const employee of node.employees ?? []) employeeIds.add(employee.id);
+    }
+    for (const node of replacements) {
+      node.employees?.forEach((employee, position) => {
+        if (employeeIds.has(employee.id)) {
+          errors.push({
+            path: `$[${replacementRows.get(node.id)}].employees[${position}].id`,
+            code: 'duplicate',
+            message: `Duplicate employee ID "${employee.id}".`,
+          });
+        }
+        employeeIds.add(employee.id);
+      });
+    }
+  }
   if (errors.length > 0) throw new DatasetValidationError(errors);
   return replacements;
 }
@@ -135,7 +169,12 @@ export function applyMetricChanges(
     const previous = index.nodesById.get(next.id);
     if (!previous) continue;
     const ownChanges = metricFields.filter((field) => next[field] !== previous[field]);
-    if (ownChanges.length === 0 && next.updatedAt === previous.updatedAt) continue;
+    if (
+      ownChanges.length === 0 &&
+      next.updatedAt === previous.updatedAt &&
+      employeeRostersEqual(next.employees, previous.employees)
+    )
+      continue;
 
     nodesById ??= new Map(index.nodesById);
     nodesById.set(next.id, next);

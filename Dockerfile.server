@@ -1,0 +1,21 @@
+FROM node:24-alpine AS build
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY server ./server
+COPY src/search ./src/search
+COPY src/domain ./src/domain
+RUN npm run build:server
+
+FROM node:24-alpine
+ENV NODE_ENV=production \
+    PORT=3001 \
+    LIVE_INTERVAL_MS=8000
+WORKDIR /app
+
+COPY --from=build --chown=node:node /app/dist-server ./dist-server
+USER node
+
+EXPOSE 3001
+CMD ["node", "dist-server/index.mjs"]

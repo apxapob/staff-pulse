@@ -1,21 +1,27 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { ChevronDown, ChevronRight, ChevronsDownUp, Folder, Network, Users } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronRight,
+  ChevronsDownUp,
+  Folder,
+  Network,
+  UserRound,
+  Users,
+} from 'lucide-react';
 import styled from 'styled-components';
-import type { OrgIndex } from '@/domain/types';
+import type { OrgAggregate, OrgIndex } from '@/domain/types';
 import { getAncestorIds } from '@/domain/tree';
 import { formatNumber, performanceTone } from '@/ui/format';
-import { Dot, Muted, Panel, PanelHeader } from '@/ui/styles';
+import { Dot, Muted, Panel, PanelHeader, ScrollArea } from '@/ui/styles';
 
-const TreeBody = styled.div`
+const TreeBody = styled(ScrollArea)`
   padding: 14px 10px 20px;
-  max-height: 610px;
-  overflow: auto;
 `;
 const Branch = styled.div`
   display: flow-root;
-  margin-left: 19px;
+  margin-left: 14px;
   border-left: 1px solid #eceef4;
-  padding-left: 4px;
+  padding-left: 9px;
 `;
 const Row = styled.div<{ $selected: boolean }>`
   display: flex;
@@ -31,6 +37,8 @@ const Row = styled.div<{ $selected: boolean }>`
   }
 `;
 const Expand = styled.button`
+  display: grid;
+  place-items: center;
   border: 0;
   background: transparent;
   color: #a1a5b5;
@@ -62,6 +70,43 @@ const Count = styled.span`
   color: #9498aa;
   font-variant-numeric: tabular-nums;
   margin-right: 5px;
+`;
+const EmployeeList = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`;
+const EmployeeRow = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 9px 8px 28px;
+  color: #777b91;
+  > div {
+    min-width: 0;
+  }
+  span,
+  small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  span {
+    color: #5b6075;
+    font-size: 12px;
+  }
+  small {
+    margin-top: 3px;
+    font-size: 10px;
+    color: #9296a8;
+  }
+`;
+const EmptyEmployees = styled.p`
+  margin: 8px 9px 8px 28px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #9296a8;
 `;
 const IconButton = styled.button`
   border: 0;
@@ -110,12 +155,16 @@ function AnimatedBranch({ open, children }: { open: boolean; children: ReactNode
 
 export function OrgTree({
   index,
+  aggregates,
   selectedId,
   onSelect,
+  revealVersion,
 }: {
   index: OrgIndex;
+  aggregates: ReadonlyMap<string, OrgAggregate>;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  revealVersion: number;
 }) {
   const [expanded, setExpanded] = useState(
     () => new Set([...index.depthById].filter(([, depth]) => depth <= 2).map(([id]) => id)),
@@ -127,7 +176,7 @@ export function OrgTree({
         document.getElementById(`org-node-${selectedId}`)?.scrollIntoView({ block: 'nearest' });
     }, 250);
     return () => clearTimeout(timer);
-  }, [index.childrenById, selectedId]);
+  }, [index.childrenById, selectedId, revealVersion]);
   const toggle = (id: string) =>
     setExpanded((old) => {
       const next = new Set(old);
@@ -138,34 +187,57 @@ export function OrgTree({
   const renderNode = (id: string) => {
     const node = index.nodesById.get(id)!;
     const children = index.childrenById.get(id) ?? [];
+    const employees = node.employees;
+    const canExpand = children.length > 0 || employees !== undefined;
+    const totalHeadcount = aggregates.get(id)!.headcount;
     const open = expanded.has(id);
     const Icon = index.depthById.get(id) === 1 ? Network : children.length ? Folder : Users;
     return (
       <div key={id}>
         <Row $selected={selectedId === id}>
           <Expand
-            tabIndex={children.length ? 0 : -1}
-            aria-hidden={!children.length}
+            tabIndex={canExpand ? 0 : -1}
+            aria-hidden={!canExpand}
             aria-label={`${open ? 'Свернуть' : 'Раскрыть'} ${node.name}`}
-            aria-expanded={children.length ? open : undefined}
+            aria-expanded={canExpand ? open : undefined}
             onClick={() => toggle(id)}
           >
-            {children.length > 0 && (open ? <ChevronDown size={13} /> : <ChevronRight size={13} />)}
+            {canExpand && (open ? <ChevronDown size={13} /> : <ChevronRight size={13} />)}
           </Expand>
           <NodeButton
             id={`org-node-${id}`}
             onClick={() => onSelect(id)}
             aria-pressed={selectedId === id}
-            title={`${node.name}: ${node.headcount} сотрудников, эффективность ${node.performance}%`}
+            title={`${node.name}: всего ${totalHeadcount} сотрудников, непосредственно в подразделении — ${node.headcount}; собственная эффективность ${node.performance}%`}
           >
             <Icon size={15} />
             <span>{node.name}</span>
-            <Count>{formatNumber(node.headcount)}</Count>
+            <Count title={`Всего сотрудников: ${totalHeadcount}`}>
+              {formatNumber(totalHeadcount)}
+            </Count>
             <Dot $tone={performanceTone(node.performance)} />
           </NodeButton>
         </Row>
-        {children.length > 0 && (
-          <AnimatedBranch open={open}>{children.map(renderNode)}</AnimatedBranch>
+        {canExpand && (
+          <AnimatedBranch open={open}>
+            {employees && (
+              <EmployeeList aria-label={`Сотрудники ${node.name}`}>
+                {employees.map((employee) => (
+                  <EmployeeRow key={employee.id} data-employee-id={employee.id}>
+                    <UserRound size={15} aria-hidden="true" />
+                    <div title={`${employee.name} · ${employee.role}`}>
+                      <span>{employee.name}</span>
+                      <small>{employee.role}</small>
+                    </div>
+                  </EmployeeRow>
+                ))}
+              </EmployeeList>
+            )}
+            {children.map(renderNode)}
+            {employees?.length === 0 && children.length === 0 && (
+              <EmptyEmployees>В подразделении пока нет сотрудников</EmptyEmployees>
+            )}
+          </AnimatedBranch>
         )}
       </div>
     );

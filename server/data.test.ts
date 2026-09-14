@@ -51,7 +51,28 @@ describe('organisation seed', () => {
     const first = getFreshOrgTree();
     const second = getFreshOrgTree();
     first[0]!.headcount = 0;
+    first[0]!.employees![0]!.name = 'Изменённое имя';
     expect(second[0]!.headcount).toBeGreaterThan(0);
     expect(orgTreeSeed[0]!.headcount).toBe(second[0]!.headcount);
+    expect(first[0]!.employees![0]!.name).not.toBe(second[0]!.employees![0]!.name);
+    expect(orgTreeSeed[0]!.employees).toEqual(second[0]!.employees);
+    expect(Object.isFrozen(orgTreeSeed[0]!.employees)).toBe(true);
+    expect(Object.isFrozen(orgTreeSeed[0]!.employees![0])).toBe(true);
+  });
+
+  it('lists every own employee exactly once, without adding employee organisation nodes', () => {
+    const ids = new Set<string>();
+    for (const node of orgTreeSeed) {
+      expect(node.employees).toHaveLength(node.headcount);
+      for (const employee of node.employees!) {
+        expect(ids.has(employee.id)).toBe(false);
+        ids.add(employee.id);
+        expect(employee.name).toBeTruthy();
+        expect(employee.role).toBeTruthy();
+        expect(employee.role).not.toBe('Специалист');
+      }
+    }
+    expect(ids.size).toBe(orgTreeSeed.reduce((total, node) => total + node.headcount, 0));
+    expect(orgTreeSeed).toHaveLength(52);
   });
 });

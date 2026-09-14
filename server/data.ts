@@ -1,3 +1,12 @@
+import {
+  copyEmployees,
+  freezeEmployees,
+  resizeDemoEmployees,
+  type OrgEmployee,
+} from './employees.js';
+
+export type { OrgEmployee } from './employees.js';
+
 export interface OrgNode {
   id: string;
   name: string;
@@ -6,6 +15,7 @@ export interface OrgNode {
   budget: number;
   performance: number;
   updatedAt: string;
+  employees?: readonly OrgEmployee[];
 }
 
 interface TeamSeed {
@@ -451,14 +461,19 @@ function createSeed(): OrgNode[] {
     }
   }
 
-  return nodes;
+  return nodes.map((node) => ({
+    ...node,
+    employees: resizeDemoEmployees(node.id, node.headcount),
+  }));
 }
 
 export const orgTreeSeed: readonly Readonly<OrgNode>[] = Object.freeze(
-  createSeed().map((node) => Object.freeze(node)),
+  createSeed().map((node) =>
+    Object.freeze({ ...node, employees: freezeEmployees(node.employees!) }),
+  ),
 );
 
 /** Each server receives an isolated mutable copy, including in tests. */
 export function getFreshOrgTree(): OrgNode[] {
-  return orgTreeSeed.map((node) => ({ ...node }));
+  return orgTreeSeed.map((node) => ({ ...node, employees: copyEmployees(node.employees!) }));
 }

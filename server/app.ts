@@ -1,7 +1,11 @@
-import { createServer, type Server, type ServerResponse } from 'node:http';
+import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { getFreshOrgTree, type OrgNode } from './data.js';
 import { OrgStore } from './org-store.js';
 import { formatEvent, SseConnection } from './sse.js';
+import { handleSearchRequest } from './search-route.js';
+import type { resolveSearch } from './search.js';
+import { resolveSearchStatus } from './search-status.js';
+import { parseSearchStatus } from '../src/search/status.js';
 
 function sendJson(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, {
@@ -12,12 +16,42 @@ function sendJson(response: ServerResponse, status: number, body: unknown): void
   response.end(JSON.stringify(body));
 }
 
+async function sendSearchStatus(
+  request: IncomingMessage,
+  response: ServerResponse,
+  resolveStatus: typeof resolveSearchStatus,
+): Promise<void> {
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  const closed = () => {
+    if (!response.writableFinished) abort();
+  };
+  request.once('aborted', abort);
+  request.once('error', abort);
+  response.once('close', closed);
+  const respond = (body: unknown) => {
+    if (!controller.signal.aborted && !response.destroyed && !response.writableEnded)
+      sendJson(response, 200, body);
+  };
+  try {
+    respond(parseSearchStatus(await resolveStatus({ signal: controller.signal })));
+  } catch {
+    respond({ status: 'unavailable' });
+  } finally {
+    request.off('aborted', abort);
+    request.off('error', abort);
+    response.off('close', closed);
+  }
+}
+
 export interface AppServerOptions {
   nodes?: OrgNode[];
   store?: OrgStore;
   /** Set to zero to disable automatic updates in deterministic tests. */
   liveIntervalMs?: number;
   heartbeatIntervalMs?: number;
+  search?: typeof resolveSearch;
+  searchStatus?: typeof resolveSearchStatus;
 }
 
 export function createAppServer({
@@ -25,6 +59,8 @@ export function createAppServer({
   store = new OrgStore({ nodes }),
   liveIntervalMs = 8_000,
   heartbeatIntervalMs = 15_000,
+  search,
+  searchStatus = resolveSearchStatus,
 }: AppServerOptions = {}): Server {
   const connections = new Set<SseConnection>();
   let liveTimer: ReturnType<typeof setInterval> | undefined;
@@ -39,7 +75,12 @@ export function createAppServer({
     }
     const path = url.pathname;
 
-    if (!['/api/org-tree', '/api/org-events', '/api/health'].includes(path)) {
+    if (path === '/api/search') {
+      void handleSearchRequest(request, response, search);
+      return;
+    }
+
+    if (!['/api/org-tree', '/api/org-events', '/api/health', '/api/search/status'].includes(path)) {
       sendJson(response, 404, { error: 'Endpoint not found' });
       return;
     }
@@ -47,6 +88,11 @@ export function createAppServer({
     if (request.method !== 'GET') {
       response.setHeader('Allow', 'GET');
       sendJson(response, 405, { error: 'Method not allowed' });
+      return;
+    }
+
+    if (path === '/api/search/status') {
+      void sendSearchStatus(request, response, searchStatus);
       return;
     }
 

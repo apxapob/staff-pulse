@@ -1,9 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { getFreshOrgTree, type OrgNode } from './data.js';
+import {
+  copyEmployees,
+  freezeEmployees,
+  MAX_DEMO_EMPLOYEES,
+  resizeDemoEmployees,
+} from './employees.js';
 
 type MetricKey = 'headcount' | 'budget' | 'performance';
 export type MetricChange = Pick<OrgNode, 'id'> & Partial<Pick<OrgNode, MetricKey>>;
-export type PatchChange = MetricChange & Pick<OrgNode, 'updatedAt'>;
+export type PatchChange = MetricChange & Pick<OrgNode, 'updatedAt' | 'employees'>;
 
 export interface OrgPatch {
   previousCursor: string;
@@ -23,6 +29,28 @@ export interface OrgStoreOptions {
 }
 
 const METRICS: MetricKey[] = ['headcount', 'budget', 'performance'];
+
+function copyNode(node: OrgNode): OrgNode {
+  return {
+    ...node,
+    ...(node.employees !== undefined ? { employees: copyEmployees(node.employees) } : {}),
+  };
+}
+
+function validateEmployeeRosters(nodes: readonly OrgNode[]): void {
+  const employeeIds = new Set<string>();
+  for (const node of nodes) {
+    if (node.employees === undefined) continue;
+    if (node.employees.length !== node.headcount || node.headcount > MAX_DEMO_EMPLOYEES)
+      throw new Error(`Employee roster must match demo headcount: ${node.id}`);
+    for (const employee of node.employees) {
+      if (!employee.id.trim() || !employee.name.trim() || !employee.role.trim())
+        throw new Error(`Invalid employee for node: ${node.id}`);
+      if (employeeIds.has(employee.id)) throw new Error(`Duplicate employee: ${employee.id}`);
+      employeeIds.add(employee.id);
+    }
+  }
+}
 
 /** In-memory mock data: one atomic revision per batch of actual metric changes. */
 export class OrgStore {
@@ -45,7 +73,8 @@ export class OrgStore {
       throw new Error('historySize must be a positive integer');
     if (!/^[a-zA-Z0-9_-]+$/.test(instanceId))
       throw new Error('instanceId must contain only letters, digits, underscores, or hyphens');
-    this.nodes = new Map(nodes.map((node) => [node.id, { ...node }]));
+    validateEmployeeRosters(nodes);
+    this.nodes = new Map(nodes.map((node) => [node.id, copyNode(node)]));
     this.instanceId = instanceId;
     this.historySize = historySize;
     this.now = now;
@@ -60,7 +89,7 @@ export class OrgStore {
   }
 
   snapshot(): { cursor: string; nodes: OrgNode[] } {
-    return { cursor: this.cursor, nodes: [...this.nodes.values()].map((node) => ({ ...node })) };
+    return { cursor: this.cursor, nodes: [...this.nodes.values()].map(copyNode) };
   }
 
   commit(changes: readonly MetricChange[]): OrgPatch | null {
@@ -81,6 +110,9 @@ export class OrgStore {
           !Number.isFinite(value) ||
           value < 0 ||
           (metric === 'headcount' && !Number.isSafeInteger(value)) ||
+          (metric === 'headcount' &&
+            existing.employees !== undefined &&
+            value > MAX_DEMO_EMPLOYEES) ||
           (metric === 'performance' && value > 100)
         ) {
           throw new Error(`Invalid ${metric} for node: ${change.id}`);
@@ -92,14 +124,30 @@ export class OrgStore {
 
     if (actualChanges.length === 0) return null;
     const updatedAt = this.now().toISOString();
+    const patchChanges = actualChanges.map((change): Readonly<PatchChange> => {
+      const existing = this.nodes.get(change.id)!;
+      const employees =
+        change.headcount !== undefined && existing.employees !== undefined
+          ? freezeEmployees(resizeDemoEmployees(change.id, change.headcount, existing.employees))
+          : undefined;
+      return Object.freeze({
+        ...change,
+        updatedAt,
+        ...(employees !== undefined ? { employees } : {}),
+      });
+    });
+    if (patchChanges.some((change) => change.employees !== undefined)) {
+      const byId = new Map(patchChanges.map((change) => [change.id, change]));
+      validateEmployeeRosters(
+        [...this.nodes.values()].map((node) => ({ ...node, ...byId.get(node.id) })),
+      );
+    }
     const previousCursor = this.cursor;
     this.sequence += 1;
     const patch: OrgPatch = Object.freeze({
       previousCursor,
       cursor: this.cursor,
-      changes: Object.freeze(
-        actualChanges.map((change) => Object.freeze({ ...change, updatedAt })),
-      ),
+      changes: Object.freeze(patchChanges),
     });
     for (const change of patch.changes) {
       this.nodes.set(change.id, { ...this.nodes.get(change.id)!, ...change });
@@ -145,6 +193,8 @@ export class OrgStore {
     let value = node[metric] + direction * (metric === 'budget' ? 10_000 : 1);
     if (metric === 'performance') value = Math.max(0, Math.min(100, value));
     else value = Math.max(0, value);
+    if (metric === 'headcount' && node.employees !== undefined)
+      value = Math.min(MAX_DEMO_EMPLOYEES, value);
     return this.commit([{ id: node.id, [metric]: value }]);
   }
 }

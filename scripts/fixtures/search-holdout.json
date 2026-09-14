@@ -1,0 +1,330 @@
+{
+  "version": 2,
+  "description": "Independent holdout with the original 12 query texts preserved for the groups/sort/limit contract. Eleven supported filters and one complete-query fallback. Do not include these queries or expected answers in model instructions.",
+  "cases": [
+    {
+      "id": "holdout-level-teams",
+      "group": "level-name",
+      "query": "Выведи только команды",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-name-substring",
+      "group": "level-name",
+      "query": "Ищу подразделения, название которых содержит «снабжение»",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "снабжение"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-headcount-negation",
+      "group": "headcount",
+      "query": "Интересуют отделы, где людей не больше 19",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 19
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-budget-minimum",
+      "group": "budget",
+      "query": "У каких дивизионов бюджет составляет хотя бы 4,6 миллиона рублей?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 4600000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-performance-less",
+      "group": "performance",
+      "query": "Подразделения, эффективность которых меньше 63%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 63
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-zero-employees",
+      "group": "headcount",
+      "query": "Нужны команды с нулевой численностью",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-two-metrics",
+      "group": "combined",
+      "query": "Отделы с бюджетом ровно 850 тысяч рублей и эффективностью не ниже 76%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 850000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 76
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-name-and-metrics",
+      "group": "combined",
+      "query": "В названии отдела должно быть «качество», сотрудников больше 22, а бюджет меньше 1,8 млн",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "качество"
+              },
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 22
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 1800000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-or",
+      "group": "logic",
+      "query": "Команды с эффективностью выше 92% либо численностью меньше 13",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 92
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 13
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-range",
+      "group": "ranges",
+      "query": "Дивизионы, где эффективность от 68 до 84 процентов",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 68
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 84
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-exclude-name",
+      "group": "exclusions",
+      "query": "Все отделы, кроме тех, чьё название содержит «закупки»",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "закупки"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "holdout-unsupported-unknown-field",
+      "group": "unsupported",
+      "query": "Команды с бюджетом менее 950 тыс. рублей и средней зарплатой выше 70 тысяч",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Команды с бюджетом менее 950 тыс. рублей и средней зарплатой выше 70 тысяч"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    }
+  ]
+}

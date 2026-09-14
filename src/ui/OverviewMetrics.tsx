@@ -96,7 +96,7 @@ export function OverviewMetrics({
         </CardHead>
         <strong>{formatNumber(totals.headcount)}</strong>
         <small>
-          <Accent>{index.rootIds.length} дивизионов</Accent> · единая команда
+          <Accent>{index.rootIds.length} дивизионов</Accent>
         </small>
       </Card>
       <Card>

@@ -22,6 +22,13 @@ export const Panel = styled.section`
   min-width: 0;
   overflow: hidden;
 `;
+export const ScrollArea = styled.div`
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #dedfeb transparent;
+`;
 export const PanelHeader = styled.div`
   display: flex;
   justify-content: space-between;

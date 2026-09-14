@@ -1,0 +1,56 @@
+name: staff-pulse
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    environment:
+      PORT: ${PORT:-3001}
+      LIVE_INTERVAL_MS: ${LIVE_INTERVAL_MS:-8000}
+      SEARCH_PROVIDER: local
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-gpt-4.1-mini}
+    expose:
+      - '${PORT:-3001}'
+    init: true
+    networks:
+      - backend
+      - egress
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:' + process.env.PORT + '/api/org-tree').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    environment:
+      API_PORT: ${PORT:-3001}
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--spider', 'http://127.0.0.1/']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  frontend:
+  egress:
+  backend:
+    internal: true

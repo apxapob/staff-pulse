@@ -2,6 +2,7 @@ import { QueryClient, useQuery } from '@tanstack/react-query';
 import { DatasetValidationError, parseDataset } from '@/domain/validation';
 import { buildOrgIndex } from '@/domain/tree';
 import { calculateAggregates } from '@/domain/aggregates';
+import { employeeRostersEqual } from '@/domain/employees';
 import type { MetricField } from '@/domain/patch';
 import type { OrgAggregate, OrgIndex } from '@/domain/types';
 
@@ -45,9 +46,10 @@ export async function fetchOrgTree(
       const old = previous.index.nodesById.get(node.id);
       return (
         old &&
-        Object.keys(node).every(
-          (key) => node[key as keyof typeof node] === old[key as keyof typeof old],
-        )
+        (
+          ['id', 'name', 'parentId', 'headcount', 'budget', 'performance', 'updatedAt'] as const
+        ).every((key) => node[key] === old[key]) &&
+        employeeRostersEqual(node.employees, old.employees)
       );
     })
   )

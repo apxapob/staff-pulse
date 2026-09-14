@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { getFreshOrgTree } from './data.js';
+import { MAX_DEMO_EMPLOYEES } from './employees.js';
 import { OrgStore } from './org-store.js';
 
 function createStore(historySize = 128): OrgStore {
@@ -20,11 +21,21 @@ describe('organisation revisions', () => {
     expect(patch).toEqual({
       previousCursor: 'test-instance:0',
       cursor: 'test-instance:1',
-      changes: [{ id: 'technology', headcount: 5, updatedAt: '2026-09-14T10:00:00.000Z' }],
+      changes: [
+        {
+          id: 'technology',
+          headcount: 5,
+          employees: expect.any(Array),
+          updatedAt: '2026-09-14T10:00:00.000Z',
+        },
+      ],
     });
     expect(listener).toHaveBeenCalledExactlyOnceWith(patch);
     const snapshot = store.snapshot();
     expect(snapshot.nodes[0]).toMatchObject({ headcount: 5 });
+    expect(snapshot.nodes[0]!.employees).toHaveLength(5);
+    expect(snapshot.nodes[0]!.employees!.slice(0, 4)).toEqual(initial.nodes[0]!.employees);
+    expect(patch!.changes[0]!.employees).toEqual(snapshot.nodes[0]!.employees);
     expect(snapshot.nodes.slice(1)).toEqual(initial.nodes.slice(1));
     expect(initial.nodes[0]!.headcount).toBe(4);
   });
@@ -37,6 +48,102 @@ describe('organisation revisions', () => {
     expect(store.commit([{ id: 'technology', headcount: 4 }])).toBeNull();
     expect(store.commit([])).toBeNull();
     expect(store.snapshot()).toEqual(initial);
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  it('updates rosters atomically with headcount through shrink, zero, and growth', () => {
+    const store = createStore();
+    const initial = store.snapshot().nodes[0]!.employees!;
+    const listener = vi.fn((patch) => {
+      expect(store.snapshot().nodes[0]!.employees).toEqual(patch.changes[0].employees);
+      expect(patch.changes[0].employees).toHaveLength(patch.changes[0].headcount);
+    });
+    store.subscribe(listener);
+    for (const count of [2, 0, 4, 6]) {
+      const patch = store.commit([{ id: 'technology', headcount: count }])!;
+      expect(patch.changes[0]!.employees).toHaveLength(count);
+      expect(patch.changes[0]!.employees!.slice(0, Math.min(4, count))).toEqual(
+        initial.slice(0, count),
+      );
+    }
+    expect(listener).toHaveBeenCalledTimes(4);
+    const replay = store.replay('test-instance:0');
+    expect(replay.ok).toBe(true);
+    if (replay.ok) {
+      expect(replay.patches.map((patch) => patch.changes[0]!.employees!.length)).toEqual([
+        2, 0, 4, 6,
+      ]);
+    }
+  });
+
+  it('keeps employee identities out of metric-only patches and supports inputs without rosters', () => {
+    const store = createStore();
+    const initialEmployees = store.snapshot().nodes[0]!.employees;
+    expect(store.commit([{ id: 'technology', budget: 42, performance: 85 }])!.changes[0]).toEqual({
+      id: 'technology',
+      budget: 42,
+      performance: 85,
+      updatedAt: '2026-09-14T10:00:00.000Z',
+    });
+    expect(store.snapshot().nodes[0]!.employees).toEqual(initialEmployees);
+    const node = getFreshOrgTree()[0]!;
+    delete node.employees;
+    const metricOnly = new OrgStore({ nodes: [node] });
+    const patch = metricOnly.commit([{ id: node.id, headcount: Number.MAX_SAFE_INTEGER }]);
+    expect(patch!.changes[0]).not.toHaveProperty('employees');
+    expect(metricOnly.snapshot().nodes[0]).not.toHaveProperty('employees');
+  });
+
+  it('isolates nested roster data in inputs, snapshots, and immutable patch history', () => {
+    const nodes = getFreshOrgTree();
+    const originalName = nodes[0]!.employees![0]!.name;
+    const store = new OrgStore({ nodes, instanceId: 'isolated' });
+    nodes[0]!.employees![0]!.name = 'Изменено извне';
+    expect(store.snapshot().nodes[0]!.employees![0]!.name).toBe(originalName);
+    const patch = store.commit([{ id: 'technology', headcount: 5 }])!;
+    const snapshot = store.snapshot();
+    snapshot.nodes[0]!.employees![0]!.name = 'Изменён снимок';
+    expect(patch.changes[0]!.employees![0]!.name).toBe(originalName);
+    expect(() => {
+      patch.changes[0]!.employees![0]!.name = 'Изменена история';
+    }).toThrow();
+    store.commit([{ id: 'technology', headcount: 1 }]);
+    expect(patch.changes[0]!.employees).toHaveLength(5);
+    expect(store.snapshot().nodes[0]!.employees![0]!.name).toBe(originalName);
+    const replay = store.replay('isolated:0');
+    expect(replay.ok && replay.patches[0]).toBe(patch);
+  });
+
+  it('rejects inconsistent initial rosters and oversized updates without committing any changes', () => {
+    const nodes = getFreshOrgTree();
+    nodes[0]!.headcount = 0;
+    expect(() => new OrgStore({ nodes })).toThrow('Employee roster must match');
+    const store = createStore();
+    const initial = store.snapshot();
+    expect(() =>
+      store.commit([
+        { id: 'frontend', budget: 1 },
+        { id: 'technology', headcount: MAX_DEMO_EMPLOYEES + 1 },
+      ]),
+    ).toThrow('Invalid headcount');
+    expect(store.snapshot()).toEqual(initial);
+  });
+
+  it('rejects generated identity collisions with custom rosters before changing state or notifying', () => {
+    const nodes = getFreshOrgTree().slice(0, 2);
+    nodes[1]!.employees![0]!.id = 'employee:technology:5';
+    const store = new OrgStore({ nodes, instanceId: 'custom' });
+    const listener = vi.fn();
+    store.subscribe(listener);
+    const initial = store.snapshot();
+    expect(() =>
+      store.commit([
+        { id: 'development', budget: 1 },
+        { id: 'technology', headcount: 5 },
+      ]),
+    ).toThrow('Duplicate employee');
+    expect(store.snapshot()).toEqual(initial);
+    expect(store.replay('custom:0')).toEqual({ ok: true, cursor: 'custom:0', patches: [] });
     expect(listener).not.toHaveBeenCalled();
   });
 
@@ -89,6 +196,7 @@ describe('organisation revisions', () => {
       expect(first.advanceDemo()).toEqual(second.advanceDemo());
     expect(listener).not.toHaveBeenCalled();
     for (const node of first.snapshot().nodes) {
+      expect(node.employees).toHaveLength(node.headcount);
       expect(node.headcount).toBeGreaterThanOrEqual(0);
       expect(node.budget).toBeGreaterThanOrEqual(0);
       expect(node.performance).toBeGreaterThanOrEqual(0);

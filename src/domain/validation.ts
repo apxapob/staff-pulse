@@ -1,4 +1,10 @@
-import type { DatasetValidationResult, OrgNode, ValidationCode, ValidationIssue } from './types';
+import type {
+  DatasetValidationResult,
+  OrgEmployee,
+  OrgNode,
+  ValidationCode,
+  ValidationIssue,
+} from './types';
 
 const requiredFields = [
   'id',
@@ -115,6 +121,48 @@ export function validateDataset(input: unknown): DatasetValidationResult {
       );
     }
 
+    let employees: OrgEmployee[] | undefined;
+    if (Object.hasOwn(entry, 'employees')) {
+      if (!Array.isArray(entry.employees)) {
+        addError(`${path}.employees`, 'array', 'Employees must be a JSON array.');
+      } else {
+        employees = [];
+        for (const [position, employee] of entry.employees.entries()) {
+          const employeePath = `${path}.employees[${position}]`;
+          if (!isRecord(employee)) {
+            addError(employeePath, 'object', 'Each employee must be an object.');
+            continue;
+          }
+          const employeeErrorsBefore = errors.length;
+          for (const field of ['id', 'name', 'role'] as const) {
+            if (!Object.hasOwn(employee, field)) {
+              addError(`${employeePath}.${field}`, 'required', `The ${field} field is required.`);
+            } else if (typeof employee[field] !== 'string' || employee[field].trim() === '') {
+              addError(
+                `${employeePath}.${field}`,
+                'string',
+                `The ${field} field must be a non-empty string.`,
+              );
+            }
+          }
+          if (errors.length === employeeErrorsBefore) {
+            employees.push({
+              id: employee.id as string,
+              name: employee.name as string,
+              role: employee.role as string,
+            });
+          }
+        }
+        if (entry.employees.length !== entry.headcount) {
+          addError(
+            `${path}.employees`,
+            'range',
+            'The employee roster length must equal headcount.',
+          );
+        }
+      }
+    }
+
     if (errors.length === errorsBefore) {
       // Copy only the declared schema: imported objects cannot add runtime state.
       nodes.push({
@@ -125,6 +173,7 @@ export function validateDataset(input: unknown): DatasetValidationResult {
         budget: entry.budget as number,
         performance: entry.performance as number,
         updatedAt: entry.updatedAt as string,
+        ...(employees === undefined ? {} : { employees }),
       });
     }
   });
@@ -132,12 +181,23 @@ export function validateDataset(input: unknown): DatasetValidationResult {
   if (errors.length > 0) return { ok: false, errors };
 
   const rowsById = new Map<string, number>();
+  const employeeIds = new Set<string>();
   nodes.forEach((node, row) => {
     if (rowsById.has(node.id)) {
       addError(`$[${row}].id`, 'duplicate', `Duplicate node ID "${node.id}".`);
     } else {
       rowsById.set(node.id, row);
     }
+    node.employees?.forEach((employee, position) => {
+      if (employeeIds.has(employee.id)) {
+        addError(
+          `$[${row}].employees[${position}].id`,
+          'duplicate',
+          `Duplicate employee ID "${employee.id}".`,
+        );
+      }
+      employeeIds.add(employee.id);
+    });
   });
   if (errors.length > 0) return { ok: false, errors };
 

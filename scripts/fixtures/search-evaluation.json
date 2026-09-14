@@ -1,0 +1,1012 @@
+{
+  "version": 2,
+  "description": "Independent handwritten Russian queries for real model evaluation against the groups/sort/limit contract. Original 30 queries are preserved; 10 additional cases cover the expanded operators. OR groups and AND conditions are unordered. Do not copy evaluation queries into model instructions.",
+  "cases": [
+    {
+      "id": "level-teams",
+      "group": "level-name",
+      "query": "Мне нужен список команд",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "level-departments",
+      "group": "level-name",
+      "query": "Отобрази все отделы компании",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "level-divisions",
+      "group": "level-name",
+      "query": "Хочу посмотреть дивизионы",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "name-substring",
+      "group": "level-name",
+      "query": "Название подразделения содержит «аналитика»",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "аналитика"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "name-and-level",
+      "group": "level-name",
+      "query": "Нужны отделы со словом «поддержка» в названии",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "поддержка"
+              },
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-gt",
+      "group": "headcount",
+      "query": "Найди команды, в которых работает больше 17 человек",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "gt",
+                "value": 17
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-gte",
+      "group": "headcount",
+      "query": "Оставь подразделения, где сотрудников хотя бы 25",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 25
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-lt",
+      "group": "headcount",
+      "query": "Покажи отделы, у которых численность меньше 14 человек",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 14
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-lte",
+      "group": "headcount",
+      "query": "Команды, где работает максимум 8 сотрудников",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 8
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-eq",
+      "group": "headcount",
+      "query": "Ищу подразделения с ровно 12 сотрудниками",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 12
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-zero",
+      "group": "headcount",
+      "query": "В каких отделах совсем нет сотрудников?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "eq",
+                "value": 0
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "budget-gt-thousand",
+      "group": "budget",
+      "query": "Нужны команды с бюджетом свыше 740 тысяч рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 740000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "budget-gte-million-decimal",
+      "group": "budget",
+      "query": "Дивизионы, чей бюджет составляет не менее 2,75 миллиона рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 2750000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "budget-lt-thousand-decimal",
+      "group": "budget",
+      "query": "Отделы, у которых бюджет меньше 625,5 тыс. руб.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 625500
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "budget-lte-million",
+      "group": "budget",
+      "query": "Подразделения с бюджетом не больше 9 млн рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 9000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "budget-eq-roubles",
+      "group": "budget",
+      "query": "Найти команды: бюджет равен 1 250 000 рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "eq",
+                "value": 1250000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "performance-gt",
+      "group": "performance",
+      "query": "Где эффективность превышает 91 процент?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 91
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "performance-gte-negation",
+      "group": "performance",
+      "query": "Отделы, эффективность которых не ниже 72%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 72
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "performance-lt",
+      "group": "performance",
+      "query": "Хочу увидеть команды с результативностью ниже 67,5 процента",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 67.5
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "performance-lte-negation",
+      "group": "performance",
+      "query": "Найди дивизионы с эффективностью не выше 88%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "lte",
+                "value": 88
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "performance-eq",
+      "group": "performance",
+      "query": "Эффективность подразделения должна быть ровно 95%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "performance",
+                "op": "eq",
+                "value": 95
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "and-two-metrics",
+      "group": "combined",
+      "query": "Отделы с численностью не меньше 30 человек и эффективностью выше 85%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 30
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 85
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "and-three-metrics",
+      "group": "combined",
+      "query": "Покажи команды, где меньше 16 сотрудников, бюджет не выше 3,2 млн и эффективность не ниже 79%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 16
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 3200000
+              },
+              {
+                "field": "performance",
+                "op": "gte",
+                "value": 79
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "or-departments",
+      "group": "logic",
+      "query": "Отделы с численностью меньше 6 или бюджетом больше 4 млн",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "lt",
+                "value": 6
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "budget",
+                "op": "gt",
+                "value": 4000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "range-budget",
+      "group": "ranges",
+      "query": "Нужны команды с бюджетом от 700 тысяч до 2 млн рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 700000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 2000000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "unsupported-unknown-field",
+      "group": "unsupported",
+      "query": "Отделы с эффективностью выше 83% и руководителем Ивановым",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Отделы с эффективностью выше 83% и руководителем Ивановым"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "exclude-name",
+      "group": "exclusions",
+      "query": "Покажи команды с бюджетом ниже 6 млн, кроме маркетинга",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "lt",
+                "value": 6000000
+              },
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "маркетинг"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "unsupported-period",
+      "group": "unsupported",
+      "query": "Какие отделы имели эффективность выше 90% в прошлом году?",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Какие отделы имели эффективность выше 90% в прошлом году?"
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "headcount-not-equal",
+      "group": "exclusions",
+      "query": "Команды, у которых численность не равна 11",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "headcount",
+                "op": "ne",
+                "value": 11
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "ranking-budget",
+      "group": "ordering",
+      "query": "Выбери три отдела с самым большим бюджетом",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": 3
+        }
+      }
+    },
+    {
+      "id": "sort-name-ascending",
+      "group": "ordering",
+      "query": "Все подразделения по алфавиту",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "name",
+            "direction": "asc"
+          },
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "sort-budget-descending",
+      "group": "ordering",
+      "query": "Отделы по убыванию бюджета",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              }
+            ]
+          ],
+          "sort": {
+            "field": "budget",
+            "direction": "desc"
+          },
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "top-performance",
+      "group": "ordering",
+      "query": "Первые 7 команд по эффективности, начиная с самых эффективных",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              }
+            ]
+          ],
+          "sort": {
+            "field": "performance",
+            "direction": "desc"
+          },
+          "limit": 7
+        }
+      }
+    },
+    {
+      "id": "bottom-headcount",
+      "group": "ordering",
+      "query": "Пять подразделений с самой маленькой численностью",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": 5
+        }
+      }
+    },
+    {
+      "id": "range-budget-mixed-units",
+      "group": "ranges",
+      "query": "Команды с бюджетом от 480 тысяч до 1,25 миллиона рублей включительно",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "gte",
+                "value": 480000
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 1250000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "range-headcount-inclusive",
+      "group": "ranges",
+      "query": "Отделы с численностью не меньше 18 и не больше 24 сотрудников",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 2
+              },
+              {
+                "field": "headcount",
+                "op": "gte",
+                "value": 18
+              },
+              {
+                "field": "headcount",
+                "op": "lte",
+                "value": 24
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "or-different-levels",
+      "group": "logic",
+      "query": "Дивизионы с эффективностью ниже 61% или команды с бюджетом не больше 2,4 млн рублей",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 1
+              },
+              {
+                "field": "performance",
+                "op": "lt",
+                "value": 61
+              }
+            ],
+            [
+              {
+                "field": "level",
+                "op": "eq",
+                "value": 3
+              },
+              {
+                "field": "budget",
+                "op": "lte",
+                "value": 2400000
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "exclude-name-and-performance",
+      "group": "exclusions",
+      "query": "Подразделения, название которых не содержит «операции», с эффективностью выше 82%",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "notContains",
+                "value": "операции"
+              },
+              {
+                "field": "performance",
+                "op": "gt",
+                "value": 82
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "exclude-level-and-sort",
+      "group": "exclusions",
+      "query": "Все подразделения, кроме дивизионов, отсортируй по возрастанию численности",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "level",
+                "op": "ne",
+                "value": 1
+              }
+            ]
+          ],
+          "sort": {
+            "field": "headcount",
+            "direction": "asc"
+          },
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "sort-level-descending",
+      "group": "ordering",
+      "query": "Расположи подразделения по уровню от команд к дивизионам",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": {
+            "field": "level",
+            "direction": "desc"
+          },
+          "limit": null
+        }
+      }
+    }
+  ]
+}

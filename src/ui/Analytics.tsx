@@ -3,7 +3,7 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
-  ChevronRight,
+  ChevronDown,
   Search,
   SlidersHorizontal,
   X,
@@ -12,12 +12,20 @@ import styled, { keyframes } from 'styled-components';
 import type { MetricField } from '@/domain/patch';
 import type { OrgAggregate, OrgIndex } from '@/domain/types';
 import { formatBudget, formatNumber, formatPerformance, performanceTone } from '@/ui/format';
-import { Dot, Panel, PanelHeader, Pill, State } from '@/ui/styles';
+import { Dot, Panel, PanelHeader, Pill, ScrollArea, State } from '@/ui/styles';
 import { useDebouncedValue } from '@/ui/useDebouncedValue';
+import {
+  selectSearchNodes,
+  sortSearchNodes,
+  type SearchResult,
+  type SearchSortField,
+} from '@/search/filter';
+import { SmartSearchButton, SmartSearchResult } from '@/ui/SmartSearch';
+import { SearchInput } from '@/ui/SearchInput';
 
-type SortKey = 'name' | 'level' | 'headcount' | 'budget' | 'performance';
+type SortKey = SearchSortField;
 const levelLabels: Record<number, string> = { 1: 'Дивизион', 2: 'Отдел', 3: 'Команда' };
-const Controls = styled.div`
+const Controls = styled.form`
   display: flex;
   gap: 10px;
   padding: 16px 20px;
@@ -54,6 +62,10 @@ const SearchBox = styled.div`
     box-shadow: 0 0 0 2px #f0eeff;
   }
   button {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    flex-shrink: 0;
     border: 0;
     background: none;
     padding: 0;
@@ -61,6 +73,7 @@ const SearchBox = styled.div`
   }
 `;
 const SelectBox = styled.label`
+  position: relative;
   border: 1px solid #e5e7ef;
   border-radius: 7px;
   display: flex;
@@ -69,19 +82,30 @@ const SelectBox = styled.label`
   padding: 0 10px;
   color: #959bb0;
   select {
-    background: white;
+    appearance: none;
+    background: transparent;
     border: 0;
+    outline: none;
     color: #697087;
-    font-size: 10px;
-    padding: 8px 0;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 18px 8px 0;
     max-width: 150px;
+    &:focus-visible {
+      outline: none;
+    }
+  }
+  &:focus-within {
+    border-color: #aaa4eb;
+    box-shadow: 0 0 0 2px #f0eeff;
   }
 `;
-const Scroll = styled.div`
-  overflow: auto;
-  max-height: 526px;
-  scrollbar-width: thin;
-  scrollbar-color: #dedfeb transparent;
+const SelectArrow = styled(ChevronDown)`
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 `;
 const flash = keyframes`from { background-color: #ded9ff; } to { background-color: transparent; }`;
 const Cell = styled.td<{ $flash: boolean }>`
@@ -139,13 +163,7 @@ const Row = styled.tr<{
   $selected: boolean;
 }>`cursor: pointer; color: #7e849a; background: ${({ $selected }) => ($selected ? '#f2f0ff' : '#fff')}; &:hover { background: ${({ $selected }) => ($selected ? '#eeebff' : '#fafaff')}; td:first-child { color: ${({ $selected }) => ($selected ? '#6b60de' : '#515870')}; }`;
 const Name = styled.span`
-  display: flex;
-  align-items: center;
-  gap: 8px;
   font-weight: 550;
-  svg {
-    color: #a7aabd;
-  }
 `;
 const Level = styled.span<{ $level: number }>`
   font-size: 9px;
@@ -184,44 +202,38 @@ export function Analytics({
   const rowRefs = useRef(new Map<string, HTMLTableRowElement>());
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [smartResult, setSmartResult] = useState<{ query: string; result: SearchResult } | null>(
+    null,
+  );
+  const activeFilter = smartResult?.query === search ? smartResult.result.filter : null;
   const term = useDebouncedValue(search).trim().toLocaleLowerCase('ru');
   const [level, setLevel] = useState('all');
   const [sort, setSort] = useState<{ key: SortKey; direction: 'asc' | 'desc' }>({
     key: 'name',
     direction: 'asc',
   });
-  const rows = useMemo(
-    () =>
-      [...index.nodesById.values()]
-        .filter(
+  const rows = useMemo(() => {
+    const nodes = [...index.nodesById.values()];
+    const matching = activeFilter
+      ? selectSearchNodes(
+          activeFilter,
+          nodes,
+          index.depthById,
+          aggregates,
+          level === 'all' ? null : Number(level),
+        )
+      : nodes.filter(
           (node) =>
             node.name.toLocaleLowerCase('ru').includes(term) &&
             (level === 'all' || index.depthById.get(node.id) === Number(level)),
-        )
-        .sort((a, b) => {
-          const aValue =
-            sort.key === 'name'
-              ? a.name
-              : sort.key === 'level'
-                ? index.depthById.get(a.id)!
-                : (aggregates.get(a.id)![sort.key] ?? -Infinity);
-          const bValue =
-            sort.key === 'name'
-              ? b.name
-              : sort.key === 'level'
-                ? index.depthById.get(b.id)!
-                : (aggregates.get(b.id)![sort.key] ?? -Infinity);
-          const compared =
-            typeof aValue === 'string'
-              ? aValue.localeCompare(String(bValue), 'ru')
-              : Number(aValue) - Number(bValue);
-          return (
-            (Number.isNaN(compared) ? 0 : compared) * (sort.direction === 'asc' ? 1 : -1) ||
-            a.id.localeCompare(b.id)
-          );
-        }),
-    [index, aggregates, term, level, sort],
-  );
+        );
+    return sortSearchNodes(
+      matching,
+      { field: sort.key, direction: sort.direction },
+      index.depthById,
+      aggregates,
+    );
+  }, [index, aggregates, term, level, sort, activeFilter]);
   const activeId = rows.some((node) => node.id === focusedId) ? focusedId : rows[0]?.id;
   const navigate = (event: KeyboardEvent<HTMLTableRowElement>, id: string) => {
     const position = rows.findIndex((node) => node.id === id);
@@ -257,19 +269,26 @@ export function Analytics({
           <h2>Аналитика подразделений</h2>
           <p>Сводные показатели с учётом всех вложенных команд</p>
         </div>
-        <SlidersHorizontal size={16} color="#a1a6b7" />
       </PanelHeader>
-      <Controls>
+      <Controls onSubmit={(event) => event.preventDefault()}>
         <SearchBox>
           <Search size={14} />
-          <input
-            aria-label="Поиск подразделения"
-            placeholder="Поиск по названию подразделения..."
+          <SearchInput
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setSmartResult(null);
+            }}
           />
           {search && (
-            <button aria-label="Очистить поиск" onClick={() => setSearch('')}>
+            <button
+              type="button"
+              aria-label="Очистить поиск"
+              onClick={() => {
+                setSearch('');
+                setSmartResult(null);
+              }}
+            >
               <X size={13} />
             </button>
           )}
@@ -286,9 +305,27 @@ export function Analytics({
             <option value="2">Отделы</option>
             <option value="3">Команды</option>
           </select>
+          <SelectArrow size={12} aria-hidden="true" />
         </SelectBox>
+        <SmartSearchButton
+          query={search}
+          onApply={(result) => {
+            setSmartResult({ query: search, result });
+            if (result.filter.sort)
+              setSort({ key: result.filter.sort.field, direction: result.filter.sort.direction });
+          }}
+        />
       </Controls>
-      <Scroll>
+      {activeFilter && smartResult && (
+        <SmartSearchResult
+          result={smartResult.result}
+          onClear={() => {
+            setSmartResult(null);
+            setSearch('');
+          }}
+        />
+      )}
+      <ScrollArea>
         <Table aria-label="Аналитическая таблица">
           <thead>
             <tr>
@@ -347,10 +384,7 @@ export function Analytics({
                   onClick={() => onSelect(node.id)}
                 >
                   <td>
-                    <Name>
-                      <ChevronRight size={12} />
-                      {node.name}
-                    </Name>
+                    <Name>{node.name}</Name>
                   </td>
                   <td>
                     <Level $level={depth}>{levelLabels[depth] ?? `Уровень ${depth}`}</Level>
@@ -391,7 +425,7 @@ export function Analytics({
             <p>Попробуйте другое название или измените уровень подразделения.</p>
           </State>
         )}
-      </Scroll>
+      </ScrollArea>
       <TableFooter>
         <span>
           Показано {rows.length} из {index.nodesById.size} подразделений

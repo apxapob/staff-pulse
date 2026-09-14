@@ -102,12 +102,54 @@ describe('organisation API', () => {
     });
     expect(changed.status).toBe(200);
     expect(changed.headers.get('X-Org-Cursor')).toBe('test:1');
-    expect((await changed.json())[0].headcount).toBe(5);
+    const changedNodes = await changed.json();
+    expect(changedNodes[0].headcount).toBe(5);
+    expect(changedNodes[0].employees).toHaveLength(5);
     expect((await fetch(`${origin}/api/health`)).status).toBe(200);
   });
 });
 
 describe('organisation event stream', () => {
+  it('sends complete matching rosters for replayed and live headcount changes, including zero', async () => {
+    const store = new OrgStore({ instanceId: 'roster' });
+    const origin = await startServer({ store });
+    const initial = getFreshOrgTree()[0]!.employees!;
+    store.commit([{ id: 'technology', headcount: 5 }]);
+    const stream = await openEvents(`${origin}/api/org-events?cursor=roster:0`);
+    const replayed = await stream.next();
+    expect(replayed).toMatchObject({
+      event: 'patch',
+      id: 'roster:1',
+      data: {
+        changes: [{ id: 'technology', headcount: 5, employees: expect.any(Array) }],
+      },
+    });
+    const replayedEmployees = (replayed.data as { changes: { employees: unknown[] }[] }).changes[0]!
+      .employees;
+    expect(replayedEmployees).toHaveLength(5);
+    expect(replayedEmployees.slice(0, 4)).toEqual(initial);
+    await stream.next();
+    for (const headcount of [2, 0, 4]) {
+      store.commit([{ id: 'technology', headcount }]);
+      const event = await stream.next();
+      expect(event).toMatchObject({
+        event: 'patch',
+        data: {
+          changes: [
+            {
+              id: 'technology',
+              headcount,
+              employees: initial.slice(0, headcount),
+            },
+          ],
+        },
+      });
+      const nodes = await (await fetch(`${origin}/api/org-tree`)).json();
+      expect(nodes[0]).toMatchObject({ headcount, employees: initial.slice(0, headcount) });
+    }
+    stream.close();
+  });
+
   it('replays changes after the snapshot, then sends live patches without a gap', async () => {
     const store = new OrgStore({ instanceId: 'test' });
     const origin = await startServer({ store });

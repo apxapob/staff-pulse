@@ -1,0 +1,439 @@
+{
+  "version": 2,
+  "description": "Independent final challenge prepared before model selection was frozen. Only each case's query is sent to the model; domainNotes document client semantics, not prompt hints.",
+  "domainNotes": [
+    "Ranking does not imply a positive-value predicate: zero-valued nodes remain eligible.",
+    "Unknown aggregate performance is null. It fails every numeric predicate, including ne, and sorts after known values in either direction.",
+    "Expected filters describe query semantics independently of the current company dataset."
+  ],
+  "cases": [
+    {
+      "id": "challenge-level-second",
+      "group": "level-name",
+      "query": "Ограничь список подразделениями второго уровня.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [[{ "field": "level", "op": "eq", "value": 2 }]],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-team-name-fragment",
+      "group": "level-name",
+      "query": "В списке команд оставь названия с фрагментом «инфра».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 3 },
+              { "field": "name", "op": "contains", "value": "инфра" }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-zero-division",
+      "group": "headcount",
+      "query": "Нужны дивизионы, в которых суммарно ноль сотрудников.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 1 },
+              { "field": "headcount", "op": "eq", "value": 0 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-headcount-minimum",
+      "group": "headcount",
+      "query": "Найди подразделения: численность как минимум 47 человек.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [[{ "field": "headcount", "op": "gte", "value": 47 }]],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-budget-exact-roubles",
+      "group": "budget",
+      "query": "Покажи отделы с суммарным бюджетом ровно 2 375 000 рублей.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 2 },
+              { "field": "budget", "op": "eq", "value": 2375000 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-performance-ceiling",
+      "group": "performance",
+      "query": "Команды, у которых средняя эффективность не превышает 73,5%.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 3 },
+              { "field": "performance", "op": "lte", "value": 73.5 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-three-metrics",
+      "group": "combined",
+      "query": "Отделы: сотрудников больше 16, бюджет меньше 3,8 млн рублей, эффективность не ниже 79%.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 2 },
+              { "field": "headcount", "op": "gt", "value": 16 },
+              { "field": "budget", "op": "lt", "value": 3800000 },
+              { "field": "performance", "op": "gte", "value": 79 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-name-exclusion",
+      "group": "exclusions",
+      "query": "Из команд исключи те, в названии которых встречается «резерв».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 3 },
+              { "field": "name", "op": "notContains", "value": "резерв" }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-positive-negative-name",
+      "group": "exclusions",
+      "query": "Названия подразделений должны содержать «анализ» и не содержать «архив».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "name", "op": "contains", "value": "анализ" },
+              { "field": "name", "op": "notContains", "value": "архив" }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-level-and-metric-exclusion",
+      "group": "exclusions",
+      "query": "Среди подразделений любого уровня, кроме первого, найди те, где численность не равна 9.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "ne", "value": 1 },
+              { "field": "headcount", "op": "ne", "value": 9 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-or-common-level",
+      "group": "logic",
+      "query": "Нужны команды, у которых бюджет выше 1,9 млн рублей либо эффективность ниже 58%.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 3 },
+              { "field": "budget", "op": "gt", "value": 1900000 }
+            ],
+            [
+              { "field": "level", "op": "eq", "value": 3 },
+              { "field": "performance", "op": "lt", "value": 58 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-or-different-levels",
+      "group": "logic",
+      "query": "Покажи отделы с численностью от 14 до 21 включительно или дивизионы с бюджетом не менее 9 млн рублей.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 2 },
+              { "field": "headcount", "op": "gte", "value": 14 },
+              { "field": "headcount", "op": "lte", "value": 21 }
+            ],
+            [
+              { "field": "level", "op": "eq", "value": 1 },
+              { "field": "budget", "op": "gte", "value": 9000000 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-or-common-metric",
+      "group": "logic",
+      "query": "Подразделения с численностью больше 35, у которых название содержит «склад» или «доставка».",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "headcount", "op": "gt", "value": 35 },
+              { "field": "name", "op": "contains", "value": "склад" }
+            ],
+            [
+              { "field": "headcount", "op": "gt", "value": 35 },
+              { "field": "name", "op": "contains", "value": "доставка" }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-range-roubles",
+      "group": "ranges",
+      "query": "Найди команды с бюджетом от 915 000 до 1 640 000 рублей включительно.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 3 },
+              { "field": "budget", "op": "gte", "value": 915000 },
+              { "field": "budget", "op": "lte", "value": 1640000 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-range-millions",
+      "group": "ranges",
+      "query": "Оставь отделы с бюджетом от 0,72 до 1,35 млн рублей, включая обе границы.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 2 },
+              { "field": "budget", "op": "gte", "value": 720000 },
+              { "field": "budget", "op": "lte", "value": 1350000 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-range-exclusive-mixed-units",
+      "group": "ranges",
+      "query": "Отделы, где бюджет больше 350 тыс. рублей, но строго меньше 0,95 млн рублей.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [
+            [
+              { "field": "level", "op": "eq", "value": 2 },
+              { "field": "budget", "op": "gt", "value": 350000 },
+              { "field": "budget", "op": "lt", "value": 950000 }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-top-budget",
+      "group": "ordering",
+      "query": "Какие четыре отдела имеют наибольший суммарный бюджет?",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [[{ "field": "level", "op": "eq", "value": 2 }]],
+          "sort": { "field": "budget", "direction": "desc" },
+          "limit": 4
+        }
+      }
+    },
+    {
+      "id": "challenge-bottom-headcount",
+      "group": "ordering",
+      "query": "Выведи шесть подразделений, в которых меньше всего сотрудников.",
+      "expected": {
+        "source": "ai",
+        "filter": { "groups": [], "sort": { "field": "headcount", "direction": "asc" }, "limit": 6 }
+      }
+    },
+    {
+      "id": "challenge-bottom-performance",
+      "group": "ordering",
+      "query": "Три команды с самой низкой средней эффективностью.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [[{ "field": "level", "op": "eq", "value": 3 }]],
+          "sort": { "field": "performance", "direction": "asc" },
+          "limit": 3
+        }
+      }
+    },
+    {
+      "id": "challenge-top-performance",
+      "group": "ordering",
+      "query": "Пять подразделений с максимальной средней эффективностью.",
+      "expected": {
+        "source": "ai",
+        "filter": {
+          "groups": [],
+          "sort": { "field": "performance", "direction": "desc" },
+          "limit": 5
+        }
+      }
+    },
+    {
+      "id": "challenge-unsupported-period",
+      "group": "unsupported",
+      "query": "Отделы, у которых бюджет в позапрошлом году превышал 7,2 млн рублей.",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Отделы, у которых бюджет в позапрошлом году превышал 7,2 млн рублей."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-unsupported-turnover",
+      "group": "unsupported",
+      "query": "Найди команды с численностью до 15 человек и текучестью кадров выше 6%.",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Найди команды с численностью до 15 человек и текучестью кадров выше 6%."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-unsupported-other-node",
+      "group": "unsupported",
+      "query": "Команды с бюджетом выше бюджета отдела «Логистика».",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Команды с бюджетом выше бюджета отдела «Логистика»."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    },
+    {
+      "id": "challenge-unsupported-company-average",
+      "group": "unsupported",
+      "query": "Подразделения, у которых средняя эффективность выше среднего по компании.",
+      "expected": {
+        "source": "text",
+        "filter": {
+          "groups": [
+            [
+              {
+                "field": "name",
+                "op": "contains",
+                "value": "Подразделения, у которых средняя эффективность выше среднего по компании."
+              }
+            ]
+          ],
+          "sort": null,
+          "limit": null
+        }
+      }
+    }
+  ]
+}

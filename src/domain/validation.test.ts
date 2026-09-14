@@ -39,6 +39,50 @@ describe('validateDataset', () => {
     expect(result).toEqual([node()]);
   });
 
+  it('copies optional employee records deeply and retains only their declared fields', () => {
+    const employee = { id: 'employee-1', name: 'Ada Lovelace', role: 'Engineer', selected: true };
+    const input = node({ headcount: 1, employees: [employee] });
+    const parsed = parseDataset([input])[0];
+    expect(parsed?.employees).toEqual([
+      { id: 'employee-1', name: 'Ada Lovelace', role: 'Engineer' },
+    ]);
+    expect(parsed?.employees).not.toBe(input.employees);
+    expect(parsed?.employees?.[0]).not.toBe(employee);
+    expect(parseDataset([node()])[0]).not.toHaveProperty('employees');
+    expect(parseDataset([node({ headcount: 0, employees: [] })])[0]?.employees).toEqual([]);
+  });
+
+  it.each([
+    [undefined, 'array', '$[0].employees'],
+    [null, 'array', '$[0].employees'],
+    [{}, 'array', '$[0].employees'],
+    [[null], 'object', '$[0].employees[0]'],
+    [[{ id: 'e', name: 'Ada' }], 'required', '$[0].employees[0].role'],
+    [[{ id: '', name: 'Ada', role: 'Engineer' }], 'string', '$[0].employees[0].id'],
+    [[{ id: 'e', name: 1, role: 'Engineer' }], 'string', '$[0].employees[0].name'],
+    [[{ id: 'e', name: 'Ada', role: ' ' }], 'string', '$[0].employees[0].role'],
+    [[], 'range', '$[0].employees'],
+  ] as const)('rejects invalid roster %j', (employees, code, path) => {
+    expectIssue([{ ...node({ headcount: 1 }), employees }], code, path);
+  });
+
+  it('requires employee identifiers to be unique within and across nodes', () => {
+    const employee = { id: 'employee-1', name: 'Ada', role: 'Engineer' };
+    expectIssue(
+      [node({ headcount: 2, employees: [employee, employee] })],
+      'duplicate',
+      '$[0].employees[1].id',
+    );
+    expectIssue(
+      [
+        node({ headcount: 1, employees: [employee] }),
+        node({ id: 'other', headcount: 1, employees: [employee] }),
+      ],
+      'duplicate',
+      '$[1].employees[0].id',
+    );
+  });
+
   it.each([null, {}, '[]', 1])('requires an array instead of %j', (input) => {
     expectIssue(input, 'array', '$');
   });
